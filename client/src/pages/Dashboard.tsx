@@ -32,7 +32,6 @@ import {
   Activity, 
   Flame, 
   Target,
-  Award,
   Home,
   Camera,
   MapPin,
@@ -72,7 +71,6 @@ export function Dashboard() {
   
   // Real diagnoses history list for stats
   const [historyItems, setHistoryItems] = useState<HistoryDiagnosis[]>([]);
-  const [reputationScore, setReputationScore] = useState<number>(0);
   const [, setRefreshKey] = useState(0);
   const [showMobileMore, setShowMobileMore] = useState(false);
   const [slowInit, setSlowInit] = useState(false);
@@ -93,7 +91,6 @@ export function Dashboard() {
         const user = await createUser('Kwame Mensah');
         localStorage.setItem(USER_ID_KEY, user.id);
         setUserId(user.id);
-        setReputationScore(user.reputation_score);
         fetchUserData(user.id);
       } catch (err) {
         setInitError(err instanceof Error ? err.message : 'Failed to connect to backend api');
@@ -111,8 +108,7 @@ export function Dashboard() {
 
   async function fetchUserData(uid: string) {
     try {
-      const data = await getActivity(uid);
-      setReputationScore(data.user.reputation_score);
+      await getActivity(uid);
     } catch (e) {
       console.warn('Failed to load reputation:', e);
     }
@@ -395,7 +391,7 @@ export function Dashboard() {
               </div>
 
               {/* Stats panel summary */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <StatCard 
                   title="Total Diagnoses" 
                   value={historyItems.length.toString()} 
@@ -409,13 +405,6 @@ export function Dashboard() {
                   icon={Target} 
                   subtext="Correct diagnoses verified" 
                   trend={{ value: 'Stable', type: 'neutral' }}
-                />
-                <StatCard 
-                  title="Reputation" 
-                  value={`${reputationScore} pts`} 
-                  icon={Award} 
-                  subtext="Unlock level 4 at 1000 pts" 
-                  trend={{ value: `Level 3`, type: 'up' }}
                 />
                 <StatCard 
                   title="Current Streak" 

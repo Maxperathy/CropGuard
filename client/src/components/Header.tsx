@@ -1,12 +1,11 @@
-import { Bell, Search, Globe, ChevronDown } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { useState } from 'react';
 
 export function Header() {
-  const [lang, setLang] = useState('EN');
   const [showNotifications, setShowNotifications] = useState(false);
 
   return (
-    <header className="flex justify-between items-center gap-4 mb-4 md:mb-6 bg-white/40 backdrop-blur-md border border-zinc-200/50 rounded-2xl p-3 md:p-4 shadow-sm">
+    <header className="relative z-30 flex justify-between items-center gap-4 mb-4 md:mb-6 bg-white/40 backdrop-blur-md border border-zinc-200/50 rounded-2xl p-3 md:p-4 shadow-sm">
       {/* Greeting and Tagline */}
       <div className="min-w-0">
         <h2 className="text-sm md:text-xl font-bold text-zinc-950 font-sans truncate flex items-center gap-1.5">
@@ -16,17 +15,7 @@ export function Header() {
       </div>
 
       {/* Right Side Buttons */}
-      <div className="flex items-center gap-4">
-        {/* Search Input bar */}
-        <div className="relative hidden md:block w-64">
-          <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input 
-            type="text" 
-            placeholder="Search farm records, diseases..."
-            className="w-full pl-9 pr-4 py-2 border border-zinc-200 rounded-xl text-xs bg-zinc-50 focus:outline-none focus:border-primary focus:bg-white transition-all"
-          />
-        </div>
-
+      <div className="flex items-center gap-3">
         {/* Notification Bell */}
         <div className="relative">
           <button 
@@ -61,18 +50,6 @@ export function Header() {
               </div>
             </div>
           )}
-        </div>
-
-        {/* Language selector dropdown */}
-        <div className="relative">
-          <button 
-            onClick={() => setLang(lang === 'EN' ? 'TWI' : 'EN')}
-            className="flex items-center gap-1.5 px-3 py-2 border border-zinc-200 hover:bg-zinc-50 rounded-xl text-xs font-bold text-zinc-700 transition-colors"
-          >
-            <Globe className="w-3.5 h-3.5 text-zinc-500" />
-            <span>{lang}</span>
-            <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
-          </button>
         </div>
 
         {/* User Mini Avatar */}
