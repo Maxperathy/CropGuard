@@ -2,7 +2,6 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
-import 'leaflet/dist/leaflet.css';
 
 // Dynamic viewport height handler for mobile viewports
 const updateVh = () => {
