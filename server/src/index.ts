@@ -24,8 +24,6 @@ app.use('/api/history', historyRouter);
 // Export for serverless environments (e.g. Vercel)
 export default app;
 
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(port, () => {
-    console.log(`CropGuard GH API running on http://localhost:${port}`);
-  });
-}
+app.listen(port, () => {
+  console.log(`CropGuard GH API running on http://localhost:${port}`);
+});
