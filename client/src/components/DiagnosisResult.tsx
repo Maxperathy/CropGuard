@@ -31,10 +31,15 @@ export function DiagnosisResultPanel({ result }: Props) {
   // Default welcome message when a diagnosis is loaded
   useEffect(() => {
     if (result) {
+      const cleanDiagnosis = result.diagnosis
+        .replace(/^(?:CROP|DISEASE|CONFIDENCE|RECOMMENDED ACTION|RECOMMENDED\s+ACTION):\s*[^\n\r]*[\n\r]*/gim, '')
+        .replace(/^[\s\r\n\-\=\*_]+/g, '')
+        .trim();
+
       setChatHistory([
         {
           role: 'assistant',
-          content: `Hello Kwame! I have completed a detailed analysis of your crop photo. Here is my structured diagnostic report:\n\n${result.vision_description ? `**Visual Symptoms Detected**:\n${result.vision_description}\n\n` : ''}${result.diagnosis}\n\nHow can I help you treat or manage this further today?`,
+          content: `Hello Kwame! I have completed a detailed analysis of your crop photo. Here is my structured diagnostic report:\n\n${result.vision_description ? `**Visual Symptoms Detected**:\n${result.vision_description}\n\n` : ''}${cleanDiagnosis}\n\nHow can I help you treat or manage this further today?`,
         }
       ]);
       setChatId(result.chat_id || null);
