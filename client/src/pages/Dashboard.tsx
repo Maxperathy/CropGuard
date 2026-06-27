@@ -412,16 +412,35 @@ export function Dashboard() {
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <Header 
-          profile={profile}
-          alerts={alerts}
-          dismissedNotificationIds={dismissedNotificationIds}
-          onDismissNotification={handleDismissNotification}
-        />
+      <div
+        className="flex-1 flex flex-col min-w-0 relative transition-all duration-500"
+        style={
+          activeTab === 'dashboard'
+            ? {
+                backgroundImage: "url('/images/Bg Img.jpg')",
+                backgroundSize: 'cover',
+                backgroundPosition: 'center top',
+                backgroundAttachment: 'local',
+              }
+            : {}
+        }
+      >
+        {/* Overlay — only visible on dashboard */}
+        {activeTab === 'dashboard' && (
+          <div className="absolute inset-0 bg-white/75 backdrop-blur-[2px] pointer-events-none z-0" />
+        )}
 
-        {/* Dashboard greeting and greeting stats cards */}
-        <main className="flex-1 p-4 md:p-6 pt-0 pb-24 md:pb-6 overflow-y-auto max-w-7xl w-full mx-auto">
+        {/* All content sits above the overlay */}
+        <div className="relative z-10 flex flex-col flex-1 min-w-0">
+          <Header 
+            profile={profile}
+            alerts={alerts}
+            dismissedNotificationIds={dismissedNotificationIds}
+            onDismissNotification={handleDismissNotification}
+          />
+
+          {/* Dashboard greeting and greeting stats cards */}
+          <main className="flex-1 p-4 md:p-6 pt-0 pb-24 md:pb-6 overflow-y-auto max-w-7xl w-full mx-auto">
           {activeTab === 'dashboard' && (
             <div className="mb-6">
               <div className="mb-6">
@@ -473,7 +492,8 @@ export function Dashboard() {
             </motion.div>
           </AnimatePresence>
         </main>
-      </div>
+        </div> {/* end z-10 content wrapper */}
+      </div> {/* end bg image wrapper */}
 
       {/* Mobile Bottom Navigation Bar */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-[#001e2b]/95 backdrop-blur-md border-t border-[#1c2d38] px-2 py-2 flex justify-around items-center z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.15)]">
