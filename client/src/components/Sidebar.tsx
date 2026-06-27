@@ -12,9 +12,14 @@ import {
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  profile?: {
+    name: string;
+    role: string;
+    location: string;
+  };
 }
 
-export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
+export function Sidebar({ activeTab, setActiveTab, profile }: SidebarProps) {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'diagnose', label: 'Diagnose & Ask AI', icon: Camera },
@@ -24,6 +29,16 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
     { id: 'weather', label: 'Weather', icon: CloudSun },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
+
+  const getInitials = (fullName: string) => {
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length === 0 || !parts[0]) return '??';
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
+  const name = profile?.name || 'Kwame Mensah';
+  const role = profile?.role || 'Plant Protector';
 
   return (
     <aside className="hidden md:flex w-64 min-h-screen bg-[#001e2b] border-r border-[#1c2d38] flex-col justify-between p-4 flex-shrink-0">
@@ -68,12 +83,12 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
       <div className="flex flex-col gap-4 mt-6">
         <div className="bg-[#003d4f] border border-[#00684a]/50 rounded-2xl p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary text-[#001e2b] flex items-center justify-center font-extrabold text-xs shadow-md">
-              KM
+            <div className="w-10 h-10 rounded-full bg-primary text-[#001e2b] flex items-center justify-center font-extrabold text-xs shadow-md select-none">
+              {getInitials(name)}
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-bold text-white truncate">Kwame Mensah</p>
-              <p className="text-[10px] text-[#a8b3bc] font-semibold">Plant Protector</p>
+              <p className="text-xs font-bold text-white truncate">{name}</p>
+              <p className="text-[10px] text-[#a8b3bc] font-semibold truncate">{role}</p>
             </div>
           </div>
         </div>

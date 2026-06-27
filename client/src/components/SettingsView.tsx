@@ -1,17 +1,74 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Bell, User, Info } from 'lucide-react';
 
-export function SettingsView() {
-  const [alerts, setAlerts] = useState({
-    weather: true,
-    outbreak: true,
-    visits: false,
-  });
+interface SettingsViewProps {
+  profile: {
+    name: string;
+    role: string;
+    location: string;
+  };
+  alerts: {
+    weather: boolean;
+    outbreak: boolean;
+    visits: boolean;
+  };
+  onSave: (
+    updatedProfile: { name: string; role: string; location: string },
+    updatedAlerts: { weather: boolean; outbreak: boolean; visits: boolean }
+  ) => void;
+}
 
-  const handleAlertToggle = (key: keyof typeof alerts) => {
-    setAlerts((prev) => ({ ...prev, [key]: !prev[key] }));
+export function SettingsView({ profile, alerts: initialAlerts, onSave }: SettingsViewProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: profile.name,
+    role: profile.role,
+    location: profile.location,
+  });
+  const [alertsState, setAlertsState] = useState(initialAlerts);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Sync state if props change (e.g. initial load)
+  useEffect(() => {
+    setAlertsState(initialAlerts);
+  }, [initialAlerts]);
+
+  useEffect(() => {
+    setEditForm({
+      name: profile.name,
+      role: profile.role,
+      location: profile.location,
+    });
+  }, [profile]);
+
+  const handleAlertToggle = (key: keyof typeof alertsState) => {
+    setAlertsState((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const getInitials = (fullName: string) => {
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length === 0 || !parts[0]) return '??';
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
+  const handleSave = () => {
+    onSave(editForm, alertsState);
+    setIsEditing(false);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
+  };
+
+  const handleCancel = () => {
+    setEditForm({
+      name: profile.name,
+      role: profile.role,
+      location: profile.location,
+    });
+    setAlertsState(initialAlerts);
+    setIsEditing(false);
   };
 
   return (
@@ -28,16 +85,70 @@ export function SettingsView() {
             <User className="w-4 h-4 text-zinc-400" />
             <span>Farmer Profile</span>
           </h3>
-          <div className="flex items-center gap-4 p-4 bg-zinc-50 border border-zinc-200 rounded-2xl">
-            <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-sm shrink-0">
-              KM
+
+          {!isEditing ? (
+            <div className="flex items-center gap-4 p-4 bg-zinc-50 border border-zinc-200 rounded-2xl">
+              <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-sm shrink-0">
+                {getInitials(profile.name)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-zinc-900">{profile.name}</p>
+                <p className="text-xs text-zinc-400 font-medium">{profile.role} · {profile.location}</p>
+              </div>
+              <Button variant="secondary" size="sm" onClick={() => setIsEditing(true)}>Edit</Button>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-zinc-900">Kwame Mensah</p>
-              <p className="text-xs text-zinc-400 font-medium">Plant Protector · Kumasi, Ashanti Region</p>
+          ) : (
+            <div className="flex flex-col gap-4 p-4 bg-zinc-50 border border-zinc-200 rounded-2xl">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-sm shrink-0">
+                  {getInitials(editForm.name)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] text-zinc-400 font-bold uppercase">Live Preview</p>
+                  <p className="text-sm font-bold text-zinc-900 truncate">{editForm.name || 'Anonymous Farmer'}</p>
+                  <p className="text-xs text-zinc-400 font-medium truncate">{editForm.role} · {editForm.location}</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase">Full Name</label>
+                  <input
+                    type="text"
+                    value={editForm.name}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                    className="px-3 py-1.5 border border-zinc-200 rounded-xl text-xs bg-white focus:outline-none focus:border-primary transition-all"
+                    placeholder="e.g. Kwame Mensah"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase">Role / Tagline</label>
+                  <input
+                    type="text"
+                    value={editForm.role}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, role: e.target.value }))}
+                    className="px-3 py-1.5 border border-zinc-200 rounded-xl text-xs bg-white focus:outline-none focus:border-primary transition-all"
+                    placeholder="e.g. Plant Protector"
+                  />
+                </div>
+                <div className="flex flex-col gap-1 md:col-span-2">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase">Location</label>
+                  <input
+                    type="text"
+                    value={editForm.location}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, location: e.target.value }))}
+                    className="px-3 py-1.5 border border-zinc-200 rounded-xl text-xs bg-white focus:outline-none focus:border-primary transition-all"
+                    placeholder="e.g. Kumasi, Ashanti Region"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 mt-1">
+                <Button variant="secondary" size="sm" onClick={handleCancel}>Discard</Button>
+                <Button variant="primary" size="sm" onClick={() => setIsEditing(false)}>Done Editing</Button>
+              </div>
             </div>
-            <Button variant="secondary" size="sm">Edit</Button>
-          </div>
+          )}
         </div>
 
         {/* Notifications */}
@@ -54,7 +165,7 @@ export function SettingsView() {
               </div>
               <input
                 type="checkbox"
-                checked={alerts.weather}
+                checked={alertsState.weather}
                 onChange={() => handleAlertToggle('weather')}
                 className="rounded border-zinc-300 text-primary focus:ring-primary w-4 h-4 cursor-pointer"
               />
@@ -66,7 +177,7 @@ export function SettingsView() {
               </div>
               <input
                 type="checkbox"
-                checked={alerts.outbreak}
+                checked={alertsState.outbreak}
                 onChange={() => handleAlertToggle('outbreak')}
                 className="rounded border-zinc-300 text-primary focus:ring-primary w-4 h-4 cursor-pointer"
               />
@@ -78,7 +189,7 @@ export function SettingsView() {
               </div>
               <input
                 type="checkbox"
-                checked={alerts.visits}
+                checked={alertsState.visits}
                 onChange={() => handleAlertToggle('visits')}
                 className="rounded border-zinc-300 text-primary focus:ring-primary w-4 h-4 cursor-pointer"
               />
@@ -114,9 +225,14 @@ export function SettingsView() {
       </Card>
 
       {/* Save button */}
-      <div className="flex justify-end gap-3">
-        <Button variant="secondary" size="md">Cancel</Button>
-        <Button variant="primary" size="md">Save Settings</Button>
+      <div className="flex justify-end items-center gap-3">
+        {saveSuccess && (
+          <span className="text-xs font-bold text-emerald-600 animate-pulse mr-2">
+            ✓ Settings saved successfully!
+          </span>
+        )}
+        <Button variant="secondary" size="md" onClick={handleCancel}>Cancel</Button>
+        <Button variant="primary" size="md" onClick={handleSave}>Save Settings</Button>
       </div>
     </div>
   );

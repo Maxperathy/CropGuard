@@ -78,6 +78,54 @@ export function Dashboard() {
   // Keep preview URL of uploaded file for display
   const [uploadedPreviewUrl, setUploadedPreviewUrl] = useState<string | null>(null);
 
+  // User Profile state
+  const [profile, setProfile] = useState(() => {
+    const storedName = localStorage.getItem('cropguard_user_name') || 'Kwame Mensah';
+    const storedRole = localStorage.getItem('cropguard_user_role') || 'Plant Protector';
+    const storedLocation = localStorage.getItem('cropguard_user_location') || 'Kumasi, Ashanti Region';
+    return { name: storedName, role: storedRole, location: storedLocation };
+  });
+
+  // Settings Alerts state
+  const [alerts, setAlerts] = useState(() => {
+    const storedWeather = localStorage.getItem('cropguard_alert_weather');
+    const storedOutbreak = localStorage.getItem('cropguard_alert_outbreak');
+    const storedVisits = localStorage.getItem('cropguard_alert_visits');
+    return {
+      weather: storedWeather !== null ? storedWeather === 'true' : true,
+      outbreak: storedOutbreak !== null ? storedOutbreak === 'true' : true,
+      visits: storedVisits !== null ? storedVisits === 'true' : false,
+    };
+  });
+
+  // Dismissed Notifications state
+  const [dismissedNotificationIds, setDismissedNotificationIds] = useState<string[]>(() => {
+    const stored = localStorage.getItem('cropguard_dismissed_notifications');
+    return stored ? JSON.parse(stored) : [];
+  });
+
+  const handleSaveSettings = (
+    updatedProfile: typeof profile,
+    updatedAlerts: typeof alerts
+  ) => {
+    setProfile(updatedProfile);
+    setAlerts(updatedAlerts);
+    localStorage.setItem('cropguard_user_name', updatedProfile.name);
+    localStorage.setItem('cropguard_user_role', updatedProfile.role);
+    localStorage.setItem('cropguard_user_location', updatedProfile.location);
+    localStorage.setItem('cropguard_alert_weather', String(updatedAlerts.weather));
+    localStorage.setItem('cropguard_alert_outbreak', String(updatedAlerts.outbreak));
+    localStorage.setItem('cropguard_alert_visits', String(updatedAlerts.visits));
+  };
+
+  const handleDismissNotification = (id: string) => {
+    setDismissedNotificationIds((prev) => {
+      const updated = [...prev, id];
+      localStorage.setItem('cropguard_dismissed_notifications', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   useEffect(() => {
     async function initUser() {
       const stored = localStorage.getItem(USER_ID_KEY);
@@ -342,7 +390,13 @@ export function Dashboard() {
       case 'weather':
         return <WeatherCard location="Kumasi" region="Ashanti Region" />;
       case 'settings':
-        return <SettingsView />;
+        return (
+          <SettingsView
+            profile={profile}
+            alerts={alerts}
+            onSave={handleSaveSettings}
+          />
+        );
       default:
         return <div>Tab not found</div>;
     }
@@ -354,11 +408,17 @@ export function Dashboard() {
       <Sidebar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
+        profile={profile}
       />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        <Header />
+        <Header 
+          profile={profile}
+          alerts={alerts}
+          dismissedNotificationIds={dismissedNotificationIds}
+          onDismissNotification={handleDismissNotification}
+        />
 
         {/* Dashboard greeting and greeting stats cards */}
         <main className="flex-1 p-4 md:p-6 pt-0 pb-24 md:pb-6 overflow-y-auto max-w-7xl w-full mx-auto">
@@ -366,7 +426,7 @@ export function Dashboard() {
             <div className="mb-6">
               <div className="mb-6">
                 <h1 className="text-2xl font-black text-zinc-950 font-sans tracking-tight">
-                  Good morning, Kwame 👋
+                  Good morning, {profile.name.split(' ')[0]} 👋
                 </h1>
                 <p className="text-xs text-zinc-500 font-medium mt-1">
                   Helping farmers protect their crops with AI. Let's inspect your farm today.
