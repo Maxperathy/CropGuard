@@ -1,5 +1,7 @@
 # CropGuard GH 🌿
 
+**Live Link**: [crop-guard-r2d9.vercel.app](https://crop-guard-r2d9.vercel.app)
+
 CropGuard GH is a premium, state-of-the-art agricultural web application designed for smallholder farmers in Ghana. It integrates advanced machine learning models for real-time crop disease diagnosis, interactive AI-powered agronomic advising, regional weather risk alerts, and local geolocated agro-dealer recommendations.
 
 The interface is inspired by high-end design systems (Linear, Apple Human Interface, Vercel, and Stripe) featuring curated layouts, micro-animations, dynamic dashboard stats, and full responsiveness.
@@ -83,4 +85,3 @@ cd client
 npm install
 npm run dev
 ```
-Open `http://localhost:5173` to interact with the application.
