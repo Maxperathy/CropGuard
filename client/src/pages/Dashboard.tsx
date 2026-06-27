@@ -415,7 +415,7 @@ export function Dashboard() {
       <div
         className="flex-1 flex flex-col min-w-0 relative transition-all duration-500"
         style={
-          activeTab === 'dashboard'
+          activeTab === 'weather'
             ? {
                 backgroundImage: "url('/images/Bg.jpg')",
                 backgroundSize: 'cover',
@@ -425,8 +425,8 @@ export function Dashboard() {
             : {}
         }
       >
-        {/* Overlay — only visible on dashboard */}
-        {activeTab === 'dashboard' && (
+        {/* Overlay — only visible on weather */}
+        {activeTab === 'weather' && (
           <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] pointer-events-none z-0" />
         )}
 
