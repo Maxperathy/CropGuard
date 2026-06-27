@@ -682,7 +682,7 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
                   }`}
                 >
                   <Paperclip className="w-3.5 h-3.5" />
-                  <span>Attach</span>
+                  <span className="hidden sm:inline">Attach</span>
                 </button>
 
                 <button
@@ -692,7 +692,7 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
                   }`}
                 >
                   <Globe className="w-3.5 h-3.5" />
-                  <span>Search</span>
+                  <span className="hidden sm:inline">Search</span>
                 </button>
 
                 <button
@@ -702,7 +702,7 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
                   }`}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${twiMode ? 'bg-white' : 'bg-zinc-400'}`} />
-                  <span>Twi Akan Mode</span>
+                  <span>Twi<span className="hidden sm:inline"> Akan Mode</span></span>
                 </button>
               </div>
 
@@ -715,7 +715,7 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
                   }`}
                 >
                   <Mic className="w-3.5 h-3.5 text-zinc-500" />
-                  <span>Voice</span>
+                  <span className="hidden sm:inline">Voice</span>
                 </button>
 
                 <button

@@ -62,3 +62,43 @@ body {
   border-radius: 8px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
 }
+
+/* Dynamic Viewport Heights & Scroll Handling */
+html {
+  height: 100vh;
+  height: 100dvh;
+}
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  overscroll-behavior-y: contain; /* prevent browser pull-to-refresh on body */
+}
+
+/* Touch highlight color clear for app feel */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Dynamic Safe Area classes for iOS / Notch screens */
+.ios-safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.ios-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.ios-safe-padding {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* Reduced motion accessibility support */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+

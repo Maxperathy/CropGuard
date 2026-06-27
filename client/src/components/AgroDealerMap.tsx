@@ -289,12 +289,12 @@ export function AgroDealerMap() {
           <p className="text-xs text-zinc-400 font-medium">Find certified local crop supplies, fertilizers, and extension services near you.</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {/* User Location Trigger Button */}
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
           <button
+            type="button"
             onClick={() => detectUserLocation(true)}
             disabled={detecting}
-            className="flex items-center gap-1.5 border border-primary/20 rounded-xl px-3 py-2 bg-primary/5 text-primary hover:bg-primary/10 transition-all font-bold text-xs disabled:opacity-50"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 border border-primary/20 rounded-xl px-3 py-2 bg-primary/5 text-primary hover:bg-primary/10 transition-all font-bold text-xs disabled:opacity-50"
           >
             {detecting ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -309,14 +309,14 @@ export function AgroDealerMap() {
             placeholder="Search specialties..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-3 pr-4 py-2 border border-zinc-200 rounded-xl text-xs bg-zinc-50 focus:outline-none focus:border-primary focus:bg-white transition-all w-44"
+            className="flex-1 sm:flex-initial pl-3 pr-4 py-2 border border-zinc-200 rounded-xl text-xs bg-zinc-50 focus:outline-none focus:border-primary focus:bg-white transition-all w-full sm:w-44"
           />
 
-          <div className="flex items-center gap-1.5 border border-zinc-200 rounded-xl px-2.5 py-2 bg-zinc-50/50">
+          <div className="flex-grow sm:flex-grow-0 flex items-center justify-between gap-1.5 border border-zinc-200 rounded-xl px-2.5 py-2 bg-zinc-50/50 w-full sm:w-auto">
             <select
               value={selectedRegion}
               onChange={(e) => setSelectedRegion(e.target.value)}
-              className="text-xs font-semibold text-zinc-600 bg-transparent focus:outline-none cursor-pointer"
+              className="text-xs font-semibold text-zinc-600 bg-transparent focus:outline-none cursor-pointer w-full"
             >
               <option value="all">All Regions</option>
               <option value="accra">Greater Accra</option>

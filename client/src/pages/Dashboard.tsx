@@ -441,7 +441,7 @@ export function Dashboard() {
         )}
 
         {/* All content sits above the overlay */}
-        <div className="relative z-10 flex flex-col flex-1 min-w-0">
+        <div className="relative z-10 flex flex-col flex-1 min-w-0 pt-[env(safe-area-inset-top,0px)]">
           <Header 
             profile={profile}
             alerts={alerts}
@@ -450,7 +450,7 @@ export function Dashboard() {
           />
 
           {/* Dashboard greeting and greeting stats cards */}
-          <main className="flex-1 p-4 md:p-6 pt-0 pb-24 md:pb-6 overflow-y-auto max-w-7xl w-full mx-auto">
+          <main className="flex-1 p-4 md:p-6 pt-0 pb-[calc(env(safe-area-inset-bottom,0px)+96px)] md:pb-6 overflow-y-auto max-w-7xl w-full mx-auto">
           {activeTab === 'dashboard' && (
             <div className="mb-6">
               <div className="mb-6">
@@ -506,7 +506,7 @@ export function Dashboard() {
       </div> {/* end bg image wrapper */}
 
       {/* Mobile Bottom Navigation Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-[#001e2b]/95 backdrop-blur-md border-t border-[#1c2d38] px-2 py-2 flex justify-around items-center z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.15)]">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-[#001e2b]/95 backdrop-blur-md border-t border-[#1c2d38] px-2 pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] flex justify-around items-center z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.15)]">
         {[
           { id: 'dashboard', label: 'Home', icon: Home },
           { id: 'diagnose', label: 'Diagnose', icon: Camera },
@@ -522,7 +522,7 @@ export function Dashboard() {
                 setActiveTab(item.id);
                 setShowMobileMore(false);
               }}
-              className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all duration-200 ${
+              className={`flex flex-col items-center justify-center min-h-[48px] gap-0.5 px-3 rounded-xl transition-all duration-200 ${
                 isActive ? 'text-primary' : 'text-[#a8b3bc]/70'
               }`}
             >
@@ -535,7 +535,7 @@ export function Dashboard() {
         {/* More button */}
         <button
           onClick={() => setShowMobileMore(!showMobileMore)}
-          className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all duration-200 ${
+          className={`flex flex-col items-center justify-center min-h-[48px] gap-0.5 px-3 rounded-xl transition-all duration-200 ${
             showMobileMore || ['library', 'weather', 'settings'].includes(activeTab) ? 'text-primary' : 'text-[#a8b3bc]/70'
           }`}
         >
@@ -560,7 +560,7 @@ export function Dashboard() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-              className="md:hidden fixed bottom-14 left-0 right-0 bg-[#001e2b] rounded-t-3xl border-t border-[#1c2d38] p-6 z-30 shadow-2xl pb-10"
+              className="md:hidden fixed bottom-[calc(env(safe-area-inset-bottom,0px)+56px)] left-0 right-0 bg-[#001e2b] rounded-t-3xl border-t border-[#1c2d38] p-6 z-30 shadow-2xl pb-[calc(env(safe-area-inset-bottom,0px)+16px)]"
             >
               <div className="flex justify-between items-center mb-5 pb-3 border-b border-[#1c2d38]/50">
                 <h3 className="text-sm font-bold text-white">Explore CropGuard GH</h3>

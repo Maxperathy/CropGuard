@@ -1,0 +1,23 @@
+{
+  "name": "CropGuard GH",
+  "short_name": "CropGuard",
+  "description": "Smart Farmer Assistant - AI Crop Disease Diagnosis",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#001e2b",
+  "theme_color": "#00ed64",
+  "icons": [
+    {
+      "src": "/images/CG-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "safeArea": {
+    "top": "env(safe-area-inset-top)",
+    "bottom": "env(safe-area-inset-bottom)"
+  }
+}

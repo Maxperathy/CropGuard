@@ -88,6 +88,7 @@ const CROP_DATA: CropInfo[] = [
 export function CropLibrary() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCrop, setSelectedCrop] = useState<CropInfo | null>(CROP_DATA[0]);
+  const [isViewingDetail, setIsViewingDetail] = useState(false);
 
   const filteredCrops = CROP_DATA.filter((crop) =>
     crop.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -96,7 +97,7 @@ export function CropLibrary() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Sidebar List of Crops */}
-      <div className="lg:col-span-1 flex flex-col gap-4">
+      <div className={`lg:col-span-1 flex flex-col gap-4 ${isViewingDetail ? 'hidden lg:flex' : 'flex'}`}>
         <div className="relative shrink-0">
           <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -112,7 +113,10 @@ export function CropLibrary() {
           {filteredCrops.map((crop) => (
             <div
               key={crop.id}
-              onClick={() => setSelectedCrop(crop)}
+              onClick={() => {
+                setSelectedCrop(crop);
+                setIsViewingDetail(true);
+              }}
               className={`p-3 rounded-2xl border flex items-center justify-between cursor-pointer transition-all ${
                 selectedCrop?.id === crop.id
                   ? 'bg-primary text-white border-primary shadow-md shadow-primary/10'
@@ -138,9 +142,16 @@ export function CropLibrary() {
       </div>
 
       {/* Main Encyclopedia Pane */}
-      <div className="lg:col-span-2">
+      <div className={`lg:col-span-2 ${isViewingDetail ? 'block' : 'hidden lg:block'}`}>
         {selectedCrop ? (
           <Card className="p-6">
+            {/* On mobile, show back button to return to crop list */}
+            <button 
+              onClick={() => setIsViewingDetail(false)}
+              className="lg:hidden mb-4 flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary-light transition-colors"
+            >
+              ← Back to Crop List
+            </button>
             <div className="flex items-center gap-4 mb-4">
               <img src={selectedCrop.image} alt={selectedCrop.name} className="w-20 h-20 object-cover rounded-2xl border border-zinc-100" />
               <div>
