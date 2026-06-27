@@ -210,10 +210,6 @@ export function SettingsView({ profile, alerts: initialAlerts, onSave }: Setting
             <span className="font-bold text-zinc-700">1.0.0</span>
           </div>
           <div className="flex justify-between">
-            <span>AI Engine</span>
-            <span className="font-bold text-zinc-700">Groq · Llama 4 Scout + 3.3 70B</span>
-          </div>
-          <div className="flex justify-between">
             <span>Region</span>
             <span className="font-bold text-zinc-700">Ghana (West Africa)</span>
           </div>
