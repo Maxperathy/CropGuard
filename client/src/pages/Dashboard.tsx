@@ -417,17 +417,17 @@ export function Dashboard() {
         style={
           activeTab === 'dashboard'
             ? {
-                backgroundImage: "url('/images/Bg Img.jpg')",
+                backgroundImage: "url('/images/Bg.jpg')",
                 backgroundSize: 'cover',
                 backgroundPosition: 'center top',
-                backgroundAttachment: 'local',
+                backgroundRepeat: 'no-repeat',
               }
             : {}
         }
       >
         {/* Overlay — only visible on dashboard */}
         {activeTab === 'dashboard' && (
-          <div className="absolute inset-0 bg-white/75 backdrop-blur-[2px] pointer-events-none z-0" />
+          <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] pointer-events-none z-0" />
         )}
 
         {/* All content sits above the overlay */}
