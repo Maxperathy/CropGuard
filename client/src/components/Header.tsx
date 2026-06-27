@@ -6,13 +6,13 @@ export function Header() {
   const [showNotifications, setShowNotifications] = useState(false);
 
   return (
-    <header className="flex justify-between items-center gap-4 mb-6 bg-white/40 backdrop-blur-md border border-zinc-200/50 rounded-2xl p-4 shadow-sm">
+    <header className="flex justify-between items-center gap-4 mb-4 md:mb-6 bg-white/40 backdrop-blur-md border border-zinc-200/50 rounded-2xl p-3 md:p-4 shadow-sm">
       {/* Greeting and Tagline */}
-      <div>
-        <h2 className="text-xl font-bold text-zinc-950 font-sans flex items-center gap-2">
+      <div className="min-w-0">
+        <h2 className="text-sm md:text-xl font-bold text-zinc-950 font-sans truncate flex items-center gap-1.5">
           Good morning, Kwame! 🌿
         </h2>
-        <p className="text-xs font-medium text-zinc-500 mt-0.5">Let's keep your crops healthy today.</p>
+        <p className="text-[10px] md:text-xs font-medium text-zinc-500 mt-0.5 truncate">Let's protect your crops today.</p>
       </div>
 
       {/* Right Side Buttons */}

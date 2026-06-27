@@ -27,7 +27,7 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   ];
 
   return (
-    <aside className="w-68 min-h-screen bg-white border-r border-zinc-200 flex flex-col justify-between p-4 flex-shrink-0">
+    <aside className="hidden md:flex w-64 min-h-screen bg-white border-r border-zinc-200 flex-col justify-between p-4 flex-shrink-0">
       <div className="flex flex-col gap-6">
         {/* Logo Brand Title */}
         <div className="flex items-center gap-3 px-2 py-3">

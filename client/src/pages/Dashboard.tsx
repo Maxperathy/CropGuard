@@ -32,7 +32,16 @@ import {
   Activity, 
   Flame, 
   Target,
-  Award
+  Award,
+  Home,
+  Camera,
+  MapPin,
+  History,
+  BookOpen,
+  CloudSun,
+  Settings,
+  Menu,
+  X
 } from 'lucide-react';
 
 const USER_ID_KEY = 'cropguard_user_id';
@@ -65,6 +74,7 @@ export function Dashboard() {
   const [historyItems, setHistoryItems] = useState<HistoryDiagnosis[]>([]);
   const [reputationScore, setReputationScore] = useState<number>(0);
   const [, setRefreshKey] = useState(0);
+  const [showMobileMore, setShowMobileMore] = useState(false);
 
   // Keep preview URL of uploaded file for display
   const [uploadedPreviewUrl, setUploadedPreviewUrl] = useState<string | null>(null);
@@ -356,7 +366,7 @@ export function Dashboard() {
         <Header />
 
         {/* Dashboard greeting and greeting stats cards */}
-        <main className="flex-1 p-6 pt-0 overflow-y-auto max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-4 md:p-6 pt-0 pb-24 md:pb-6 overflow-y-auto max-w-7xl w-full mx-auto">
           {activeTab === 'dashboard' && (
             <div className="mb-6">
               <div className="mb-6">
@@ -416,6 +426,100 @@ export function Dashboard() {
           </AnimatePresence>
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-zinc-200/80 px-2 py-2 flex justify-around items-center z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
+        {[
+          { id: 'dashboard', label: 'Home', icon: Home },
+          { id: 'diagnose', label: 'Diagnose', icon: Camera },
+          { id: 'map', label: 'Map', icon: MapPin },
+          { id: 'history', label: 'History', icon: History },
+        ].map((item) => {
+          const Icon = item.icon;
+          const isActive = activeTab === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => {
+                setActiveTab(item.id);
+                setShowMobileMore(false);
+              }}
+              className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all duration-200 ${
+                isActive ? 'text-primary' : 'text-zinc-400'
+              }`}
+            >
+              <Icon className="w-5 h-5" />
+              <span className="text-[9px] font-bold tracking-tight">{item.label}</span>
+            </button>
+          );
+        })}
+        
+        {/* More button */}
+        <button
+          onClick={() => setShowMobileMore(!showMobileMore)}
+          className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all duration-200 ${
+            showMobileMore || ['library', 'weather', 'settings'].includes(activeTab) ? 'text-primary' : 'text-zinc-400'
+          }`}
+        >
+          {showMobileMore ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          <span className="text-[9px] font-bold tracking-tight">More</span>
+        </button>
+      </div>
+
+      {/* Mobile More slide-up panel overlay */}
+      <AnimatePresence>
+        {showMobileMore && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.5 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowMobileMore(false)}
+              className="md:hidden fixed inset-0 bg-zinc-950/40 z-30"
+            />
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="md:hidden fixed bottom-14 left-0 right-0 bg-white rounded-t-3xl border-t border-zinc-200 p-6 z-30 shadow-2xl pb-10"
+            >
+              <div className="flex justify-between items-center mb-5 pb-3 border-b border-zinc-100">
+                <h3 className="text-sm font-bold text-zinc-900">Explore CropGuard GH</h3>
+                <span className="text-[10px] bg-zinc-100 text-zinc-500 font-bold px-2 py-0.5 rounded-full">Menu</span>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { id: 'library', label: 'Crop Library', icon: BookOpen, desc: 'Agronomic guide' },
+                  { id: 'weather', label: 'Weather', icon: CloudSun, desc: 'Farming forecasts' },
+                  { id: 'settings', label: 'Settings', icon: Settings, desc: 'App profile' },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setActiveTab(item.id);
+                        setShowMobileMore(false);
+                      }}
+                      className={`flex flex-col items-center justify-center p-3 rounded-2xl border text-center transition-all ${
+                        isActive
+                          ? 'bg-primary/5 border-primary text-primary font-bold shadow-sm'
+                          : 'bg-zinc-50 border-zinc-200/60 text-zinc-700 hover:bg-zinc-100'
+                      }`}
+                    >
+                      <Icon className="w-6 h-6 mb-2 text-zinc-500" />
+                      <span className="text-xs font-bold block">{item.label}</span>
+                      <span className="text-[8px] text-zinc-400 mt-0.5 leading-none">{item.desc}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
