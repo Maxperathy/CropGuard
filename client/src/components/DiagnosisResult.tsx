@@ -34,7 +34,7 @@ export function DiagnosisResultPanel({ result }: Props) {
       setChatHistory([
         {
           role: 'assistant',
-          content: `Hello! I've analyzed the crop photo. The diagnosis indicates ${result.diagnosis.split('.')[0]}. How can I help you treat this today?`,
+          content: `Hello Kwame! I have completed a detailed analysis of your crop photo. Here is my structured diagnostic report:\n\n${result.vision_description ? `**Visual Symptoms Detected**:\n${result.vision_description}\n\n` : ''}${result.diagnosis}\n\nHow can I help you treat or manage this further today?`,
         }
       ]);
       setChatId(result.chat_id || null);

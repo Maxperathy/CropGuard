@@ -58,5 +58,8 @@ export function parseConfidenceFromAgentReply(content: string): number {
 }
 
 export function stripConfidenceLine(content: string): string {
-  return content.replace(/\n?CONFIDENCE:\s*\d{1,3}\s*$/i, '').trim();
+  return content
+    .replace(/^(?:CROP|DISEASE|CONFIDENCE|RECOMMENDED ACTION|RECOMMENDED\s+ACTION):\s*[^\n\r]*[\n\r]*/gim, '')
+    .replace(/^[\s\r\n\-\=\*_]+/g, '')
+    .trim();
 }

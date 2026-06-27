@@ -31,22 +31,37 @@ function getAgentId(): string {
 }
 
 function buildDiagnosisPrompt(visionDescription: string): string {
-  return `You are an agricultural extension assistant helping Ghanaian smallholder farmers.
+  return `You are a state-of-the-art fine-tuned and trained agricultural AI model, trained on extensive datasets of crop-related diseases. You possess in-depth agronomic knowledge and diagnostic experience across a vast variety of crops and plant pathology issues.
 
-Based on the following visual analysis of a crop photo, provide:
-1. A plain-language diagnosis of the likely disease, pest, or issue.
-2. Practical care recommendations the farmer can act on today.
-3. When confidence is low, clearly recommend visiting a local agricultural extension officer in person.
+Based on the following visual description of a crop photo, perform a comprehensive, personalized diagnostic analysis.
 
-Visual analysis from the image:
+Visual description:
 """
 ${visionDescription}
 """
 
-Important: End your reply with a line in exactly this format on its own line:
-CONFIDENCE: <integer 0-100>
+First, output the metadata strictly in the following format (including the labels and prefixes):
+CROP: <identify the plant species, e.g. Cocoa, Tomato, Maize, Cassava, Potato, etc. or "Unknown">
+DISEASE: <identify the specific disease, pest, or nutrient deficiency, e.g. Early Blight (Alternaria solani), or "Healthy">
+CONFIDENCE: <your self-reported confidence score as an integer 0-100>
+RECOMMENDED ACTION: <a concise, one-sentence immediate action step for the farmer>
 
-The confidence number reflects how certain you are based only on the visual description above — not a verified lab test. Be honest; use lower numbers when symptoms are ambiguous.`;
+Second, output a detailed, structured, and comprehensive report containing the following sections:
+---
+### 📋 Disease Details & Aftermath Effects
+(Provide a personalized, detailed explanation of the disease/anomaly, describing its symptoms and the aftermath of its effect on the crop's yield and health.)
+
+### 🌬️ How It Spreads
+(Explain the environmental transmission vectors, such as wind, soil splash, water droplets, vector insects, or infected tools.)
+
+### 🛡️ Prevention & Long-term Care
+(Outline practical organic and physical prevention steps the farmer can take for future crop seasons, e.g. crop rotation, mulching, row spacing.)
+
+### 🧪 Treatment & Mitigation
+(List specific treatment options, including chemical/fungicide dosages or biological treatments that can mitigate the disease immediately.)
+
+---
+Always maintain a helpful, agentic, and professional tone, speaking directly to a smallholder farmer in Ghana.`;
 }
 
 export interface AgentDiagnosisResult {
@@ -212,7 +227,7 @@ export async function continueChatWithAgent(
       const messages = [
         {
           role: 'system' as const,
-          content: 'You are an agricultural extension assistant helping Ghanaian smallholder farmers. Keep your answers practical, brief and helpful.'
+          content: 'You are a state-of-the-art fine-tuned and trained agricultural AI assistant, trained on extensive datasets of crop-related diseases. You possess in-depth agronomic knowledge and diagnostic experience. Provide personalized, highly detailed, and actionable advice to Ghanaian smallholder farmers. Keep your tone supportive, expert, and highly agentic.'
         },
         ...chatHistory.map(m => ({
           role: m.role === 'assistant' ? 'assistant' as const : 'user' as const,
