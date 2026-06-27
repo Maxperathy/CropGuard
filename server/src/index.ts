@@ -21,6 +21,11 @@ app.use('/api/activity', activityRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/history', historyRouter);
 
-app.listen(port, () => {
-  console.log(`CropGuard GH API running on http://localhost:${port}`);
-});
+// Export for serverless environments (e.g. Vercel)
+export default app;
+
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(port, () => {
+    console.log(`CropGuard GH API running on http://localhost:${port}`);
+  });
+}
