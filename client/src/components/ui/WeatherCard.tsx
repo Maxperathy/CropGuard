@@ -204,14 +204,14 @@ export function WeatherCard({
       </div>
 
       {/* Recommended Action Alert Box */}
-      <div className="bg-emerald-50/50 border border-emerald-100/75 rounded-2xl p-2.5 flex items-start gap-2">
-        <div className="w-5 h-5 rounded bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
-          <Thermometer className="w-3 h-3" />
-        </div>
-        <div className="text-xs text-zinc-700 leading-normal">
+      <div className="bg-emerald-50/50 border border-emerald-100/75 rounded-2xl p-2.5 flex flex-col gap-1.5">
+        <div className="flex items-center gap-2">
+          <div className="w-5 h-5 rounded bg-emerald-500 text-white flex items-center justify-center shrink-0">
+            <Thermometer className="w-3 h-3" />
+          </div>
           <span className="font-bold text-emerald-800 text-[13px]">Recommendation</span>
-          <p className="mt-0.5 font-medium">{risk.rec}</p>
         </div>
+        <p className="text-xs text-zinc-700 font-medium leading-normal">{risk.rec}</p>
       </div>
 
       {onViewForecast && (
