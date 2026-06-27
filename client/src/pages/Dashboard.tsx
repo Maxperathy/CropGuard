@@ -75,6 +75,7 @@ export function Dashboard() {
   const [reputationScore, setReputationScore] = useState<number>(0);
   const [, setRefreshKey] = useState(0);
   const [showMobileMore, setShowMobileMore] = useState(false);
+  const [slowInit, setSlowInit] = useState(false);
 
   // Keep preview URL of uploaded file for display
   const [uploadedPreviewUrl, setUploadedPreviewUrl] = useState<string | null>(null);
@@ -99,7 +100,13 @@ export function Dashboard() {
       }
     }
 
+    // Show warning if backend is taking a long time to boot (Render cold start)
+    const timer = setTimeout(() => {
+      setSlowInit(true);
+    }, 4000);
+
     initUser();
+    return () => clearTimeout(timer);
   }, []);
 
   async function fetchUserData(uid: string) {
@@ -268,6 +275,15 @@ export function Dashboard() {
         <div className="flex-1 flex flex-col min-w-0">
           <div className="h-16 bg-white border-b border-zinc-200" />
           <div className="p-6 space-y-6">
+            {slowInit && (
+              <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 max-w-lg text-xs font-bold text-primary flex items-center gap-2.5 animate-bounce">
+                <span className="relative flex h-2 w-2 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                </span>
+                <span>Connecting to database. The Render backend server is booting up from cold sleep (takes ~50 seconds)...</span>
+              </div>
+            )}
             <div className="space-y-2">
               <div className="h-6 bg-zinc-200 rounded w-1/4" />
               <div className="h-3 bg-zinc-200 rounded w-1/3" />
