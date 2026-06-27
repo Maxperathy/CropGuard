@@ -86,13 +86,13 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
     const lines = content.split('\n');
     return lines.map((line, idx) => {
       const trimmed = line.trim();
-      if (!trimmed) return <div key={idx} className="h-1.5" />;
+      if (!trimmed) return <div key={idx} className="h-2" />;
 
       // Headings
       if (trimmed.startsWith('###') || trimmed.startsWith('##') || trimmed.startsWith('#')) {
         const title = trimmed.replace(/^#+\s*/, '');
         return (
-          <h4 key={idx} className="font-extrabold text-white mt-4 mb-2 text-[11px] uppercase tracking-wider flex items-center gap-1.5 border-b border-[#1c2d38] pb-1">
+          <h4 key={idx} className="font-extrabold text-zinc-950 mt-5 mb-2.5 text-xs uppercase tracking-wider flex items-center gap-1.5 border-b border-zinc-200 pb-1.5">
             {title}
           </h4>
         );
@@ -102,8 +102,8 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
       if (trimmed.startsWith('-') || trimmed.startsWith('*')) {
         const itemText = trimmed.replace(/^[\-\*]\s*/, '');
         return (
-          <div key={idx} className="flex items-start gap-1.5 pl-2 py-0.5 text-zinc-300 font-medium text-xs">
-            <span className="text-primary shrink-0 mt-1.5 w-1 h-1 rounded-full bg-primary" />
+          <div key={idx} className="flex items-start gap-2 pl-2 py-0.5 text-zinc-650 font-medium text-xs">
+            <span className="text-primary shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-primary" />
             <span className="flex-1">{itemText}</span>
           </div>
         );
@@ -113,10 +113,10 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
       if (trimmed.includes('**')) {
         const parts = trimmed.split('**');
         return (
-          <p key={idx} className="mb-1.5 text-zinc-300 font-medium text-xs leading-relaxed">
+          <p key={idx} className="mb-2 text-zinc-600 font-medium text-xs leading-relaxed">
             {parts.map((part, pIdx) => {
               if (pIdx % 2 !== 0) {
-                return <strong key={pIdx} className="font-extrabold text-primary">{part}</strong>;
+                return <strong key={pIdx} className="font-extrabold text-zinc-950">{part}</strong>;
               }
               return part;
             })}
@@ -125,7 +125,7 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
       }
 
       return (
-        <p key={idx} className="mb-1.5 text-zinc-300 font-medium text-xs leading-relaxed">
+        <p key={idx} className="mb-2 text-zinc-600 font-medium text-xs leading-relaxed">
           {trimmed}
         </p>
       );
@@ -356,7 +356,7 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] bg-[#001e2b] border border-[#1c2d38] rounded-3xl overflow-hidden shadow-2xl relative">
+    <div className="flex flex-col h-[calc(100vh-140px)] bg-white border border-zinc-200/80 rounded-3xl overflow-hidden shadow-sm relative">
       
       {/* Hidden file input */}
       <input 
@@ -368,7 +368,7 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
       />
 
       {/* Messages Scroll view */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 bg-white scrollbar-thin">
         {messages.map((msg) => {
           const isUser = msg.from === 'user';
           return (
@@ -376,27 +376,27 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
               
               {/* Image attachment rendering */}
               {msg.image && (
-                <div className="mb-2 relative rounded-2xl overflow-hidden border border-[#00684a]/30 shadow-md max-w-xs md:max-w-md select-none">
+                <div className="mb-3 relative rounded-2xl overflow-hidden border border-zinc-200 shadow-sm max-w-xs md:max-w-md select-none">
                   <img src={msg.image} alt="Crop attachment" className="w-full object-cover max-h-48" />
-                  <span className="absolute top-2 right-2 text-[9px] font-bold bg-[#001e2b]/80 backdrop-blur text-primary px-2 py-0.5 rounded-full">
+                  <span className="absolute top-2 right-2 text-[9px] font-bold bg-white/90 backdrop-blur text-primary px-2 py-0.5 rounded-full border border-primary/20">
                     Specimen Upload
                   </span>
                 </div>
               )}
 
               {/* Message Content Container */}
-              <div className={`max-w-[85%] md:max-w-[80%] rounded-3xl px-5 py-4 text-xs leading-relaxed transition-all shadow-sm ${
+              <div className={`leading-relaxed transition-all ${
                 isUser 
-                  ? 'bg-[#003d4f] text-white rounded-tr-none border border-[#00684a]/30' 
-                  : 'bg-[#001e2b] text-zinc-100 border border-[#1c2d38]'
+                  ? 'max-w-[85%] md:max-w-[70%] rounded-3xl px-5 py-3 text-xs bg-zinc-100 text-zinc-800 rounded-tr-none border border-zinc-200/50 shadow-sm' 
+                  : 'max-w-full md:max-w-[90%] bg-transparent text-zinc-800 p-0 shadow-none border-0'
               }`}>
                 
                 {/* Sources Used Block */}
                 {!isUser && msg.sources && msg.sources.length > 0 && (
-                  <div className="mb-3 flex flex-wrap items-center gap-1.5 text-[9px] font-bold text-[#a8b3bc]">
-                    <FileSearch className="w-3.5 h-3.5 text-primary shrink-0" />
+                  <div className="mb-3 flex flex-wrap items-center gap-1.5 text-[9px] font-bold text-zinc-400">
+                    <FileSearch className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
                     <span>Used {msg.sources.length} sources</span>
-                    <ArrowRight className="w-3 h-3" />
+                    <ArrowRight className="w-3 h-3 text-zinc-300" />
                     {msg.sources.map((s, idx) => (
                       <a 
                         key={idx} 
@@ -413,17 +413,17 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
 
                 {/* Reasoning Trace Collapsible */}
                 {!isUser && msg.reasoning && (
-                  <div className="mb-3 border-l-2 border-primary/40 pl-3 py-0.5">
+                  <div className="mb-3 border-l-2 border-zinc-200 pl-3 py-0.5">
                     <button 
                       onClick={() => toggleReasoning(msg.key)}
-                      className="flex items-center gap-1.5 text-[9px] font-bold text-[#a8b3bc] hover:text-primary transition-colors"
+                      className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-400 hover:text-primary transition-colors"
                     >
-                      <Brain className="w-3.5 h-3.5 text-primary animate-pulse" />
+                      <Brain className="w-3.5 h-3.5 text-zinc-400 animate-pulse" />
                       <span>Thought for {msg.reasoning.duration} seconds</span>
                       {msg.reasoning.expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                     </button>
                     {msg.reasoning.expanded && (
-                      <p className="mt-1.5 text-[10px] text-zinc-400 italic leading-relaxed">
+                      <p className="mt-1.5 text-[10px] text-zinc-500 italic leading-relaxed">
                         {msg.reasoning.content}
                       </p>
                     )}
@@ -432,42 +432,42 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
 
                 {/* Diagnostic Details Metadata Card */}
                 {!isUser && msg.metadata && (
-                  <div className="mb-4 bg-[#003d4f] border border-[#00684a]/50 rounded-2xl p-4 space-y-3">
+                  <div className="mb-4 bg-white border border-zinc-200/80 rounded-2xl p-5 space-y-3.5 shadow-sm max-w-2xl">
                     <div className="flex flex-wrap gap-1.5 items-center">
-                      <span className="text-[10px] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full font-black">
+                      <span className="text-[10px] bg-primary/10 text-[#00684a] border border-primary/20 px-2.5 py-0.5 rounded-full font-black">
                         🌿 {msg.metadata.cropName} <span className="text-[8px] italic font-medium opacity-85">({msg.metadata.cropScientific})</span>
                       </span>
-                      <span className="text-[9px] bg-danger/10 text-danger border border-danger/20 px-2 py-0.5 rounded-full font-bold">
+                      <span className="text-[9px] bg-danger/10 text-danger border border-danger/20 px-2.5 py-0.5 rounded-full font-bold">
                         Disease Detected
                       </span>
                     </div>
 
-                    <div className="border-b border-[#1c2d38]/50 pb-2">
-                      <h4 className="text-sm font-black text-white leading-tight">{msg.metadata.diseaseName}</h4>
-                      <p className="text-[9px] text-[#a8b3bc] italic mt-0.5 font-bold">{msg.metadata.diseaseScientific}</p>
+                    <div className="border-b border-zinc-150 pb-2">
+                      <h4 className="text-sm font-black text-zinc-950 leading-tight">{msg.metadata.diseaseName}</h4>
+                      <p className="text-[9px] text-zinc-400 italic mt-0.5 font-bold">{msg.metadata.diseaseScientific}</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <div className="flex justify-between items-center text-[9px] font-bold mb-1">
-                          <span className="text-[#a8b3bc]">Confidence</span>
-                          <span className="text-primary">{msg.metadata.confidence}%</span>
+                          <span className="text-zinc-500">Confidence</span>
+                          <span className="text-[#00684a]">{msg.metadata.confidence}%</span>
                         </div>
                         <Progress value={msg.metadata.confidence} barClassName="bg-primary" className="h-1.5" />
                       </div>
                       <div>
-                        <span className="text-[9px] font-bold text-[#a8b3bc] block mb-0.5">Severity</span>
+                        <span className="text-[9px] font-bold text-zinc-500 block mb-0.5">Severity</span>
                         <div className="flex items-center gap-1.5">
                           <div className={`w-2 h-2 rounded-full ${
                             msg.metadata.severity === 'Severe' ? 'bg-danger' : msg.metadata.severity === 'Moderate' ? 'bg-gold' : 'bg-primary'
                           }`} />
-                          <span className="text-xs font-bold text-white leading-none">{msg.metadata.severity}</span>
+                          <span className="text-xs font-bold text-zinc-800 leading-none">{msg.metadata.severity}</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="bg-[#001e2b]/50 border border-[#1c2d38]/60 rounded-xl p-2.5 text-[10px] text-zinc-300 font-medium">
-                      <strong className="text-primary block mb-0.5 font-bold">Recommended Action:</strong>
+                    <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl p-3 text-[10px] text-zinc-700 font-medium">
+                      <strong className="text-[#00684a] block mb-0.5 font-bold">Recommended Action:</strong>
                       {msg.metadata.recommendedAction}
                     </div>
                   </div>
@@ -485,16 +485,16 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
                 )}
 
                 {msg.status === 'analyzing' && (
-                  <div className="space-y-2 py-2 w-48">
+                  <div className="space-y-2.5 py-2 w-48">
                     <div className="flex items-center gap-2">
                       <span className="relative flex h-2.5 w-2.5 shrink-0">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
                       </span>
-                      <span className="text-white font-black text-[11px] uppercase tracking-wider animate-pulse">Running Diagnosis...</span>
+                      <span className="text-zinc-950 font-black text-[11px] uppercase tracking-wider animate-pulse">Running Diagnosis...</span>
                     </div>
                     <Progress value={analyzingProgress} barClassName="bg-primary animate-pulse" className="h-1.5" />
-                    <p className="text-[9px] text-[#a8b3bc] font-semibold leading-none">Scanning crop pixel vectors ({analyzingProgress}%)</p>
+                    <p className="text-[9px] text-zinc-400 font-semibold leading-none">Scanning crop pixel vectors ({analyzingProgress}%)</p>
                   </div>
                 )}
 
@@ -524,14 +524,14 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
 
       {/* Preset Suggestions Row */}
       {messages.length === 1 && (
-        <div className="px-4 md:px-6 py-2 flex flex-wrap gap-2 items-center justify-center shrink-0 border-t border-[#1c2d38]/40 bg-[#001e2b]">
+        <div className="px-4 md:px-6 py-3 flex flex-wrap gap-2 items-center justify-center shrink-0 border-t border-zinc-200/80 bg-zinc-50/50">
           {SUGGESTIONS.map((s, idx) => {
             const Icon = s.icon;
             return (
               <button
                 key={idx}
                 onClick={() => handleSendText(s.text)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#1c2d38] text-[10px] font-bold text-[#a8b3bc] hover:border-primary hover:text-white hover:bg-[#003d4f] transition-all"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-zinc-200 text-[10px] font-bold text-zinc-600 hover:border-primary hover:text-primary hover:bg-primary/5 bg-white shadow-sm transition-all"
               >
                 <Icon className="w-3.5 h-3.5" style={{ color: s.color }} />
                 <span>{s.text}</span>
@@ -542,15 +542,15 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
       )}
 
       {/* Input Terminal Footer */}
-      <div className="p-4 bg-[#001e2b] border-t border-[#1c2d38]">
+      <div className="p-4 bg-white border-t border-zinc-200/80 shrink-0">
         <div className="mx-auto max-w-4xl space-y-2 relative">
           
           {/* File Attach Dropdown Options */}
           {dropdownOpen && (
-            <div className="absolute bottom-16 left-2 bg-[#003d4f] border border-[#00684a]/50 rounded-2xl p-2 shadow-2xl flex flex-col gap-1 w-44 z-50">
+            <div className="absolute bottom-16 left-2 bg-white border border-zinc-200 rounded-2xl p-2 shadow-xl flex flex-col gap-1 w-44 z-50">
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl text-left text-[11px] font-bold text-[#a8b3bc] hover:text-white hover:bg-[#00684a] transition-all"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-left text-[11px] font-bold text-zinc-600 hover:text-zinc-950 hover:bg-zinc-50 transition-all"
               >
                 <ImageIcon className="w-4 h-4 text-primary" />
                 Upload Photo
@@ -562,7 +562,7 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
                     fileInputRef.current.click();
                   }
                 }}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl text-left text-[11px] font-bold text-[#a8b3bc] hover:text-white hover:bg-[#00684a] transition-all"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-left text-[11px] font-bold text-zinc-600 hover:text-zinc-950 hover:bg-zinc-50 transition-all"
               >
                 <Camera className="w-4 h-4 text-primary" />
                 Take Photo
@@ -571,7 +571,7 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
           )}
 
           {/* Text Input Terminal Area */}
-          <div className="bg-[#003d4f] border border-[#00684a]/40 focus-within:border-primary/50 rounded-3xl p-3 flex flex-col transition-all">
+          <div className="bg-zinc-50/50 border border-zinc-200/80 focus-within:border-primary/50 focus-within:bg-white focus-within:ring-4 focus-within:ring-primary/10 rounded-3xl p-3 flex flex-col transition-all">
             <textarea
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
@@ -582,18 +582,18 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
                 }
               }}
               placeholder="Ask CropGuard AI anything..."
-              className="w-full bg-transparent border-0 outline-none text-white placeholder-zinc-400/80 px-2 py-1 text-xs resize-none min-h-12 focus:ring-0"
+              className="w-full bg-transparent border-0 outline-none text-zinc-800 placeholder-zinc-400 px-2 py-1 text-xs resize-none min-h-12 focus:ring-0"
             />
             
             {/* Input Controls Footer */}
-            <div className="flex justify-between items-center pt-2 border-t border-[#1c2d38]/50 mt-1">
+            <div className="flex justify-between items-center pt-2 border-t border-zinc-200/80 mt-1">
               
               {/* Attach and Search triggers */}
               <div className="flex items-center gap-2 select-none">
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#1c2d38] text-[10px] font-bold transition-all ${
-                    dropdownOpen ? 'bg-primary text-[#001e2b]' : 'bg-transparent text-[#a8b3bc] hover:text-white'
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-200 text-[10px] font-bold transition-all ${
+                    dropdownOpen ? 'bg-primary text-[#001e2b]' : 'bg-white text-zinc-600 hover:text-zinc-800 hover:bg-zinc-50 shadow-sm'
                   }`}
                 >
                   <Paperclip className="w-3.5 h-3.5" />
@@ -602,8 +602,8 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
 
                 <button
                   onClick={() => setUseWebSearch(!useWebSearch)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#1c2d38] text-[10px] font-bold transition-all ${
-                    useWebSearch ? 'bg-primary text-[#001e2b]' : 'bg-transparent text-[#a8b3bc] hover:text-white'
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-200 text-[10px] font-bold transition-all ${
+                    useWebSearch ? 'bg-primary text-[#001e2b]' : 'bg-white text-zinc-600 hover:text-zinc-800 hover:bg-zinc-50 shadow-sm'
                   }`}
                 >
                   <Globe className="w-3.5 h-3.5" />
@@ -615,18 +615,18 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsRecording(!isRecording)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#1c2d38] text-[10px] font-bold transition-all ${
-                    isRecording ? 'bg-danger text-white animate-pulse' : 'bg-transparent text-[#a8b3bc] hover:text-white'
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-200 text-[10px] font-bold transition-all ${
+                    isRecording ? 'bg-danger text-white animate-pulse shadow-sm' : 'bg-white text-zinc-600 hover:text-zinc-850 hover:bg-zinc-50 shadow-sm'
                   }`}
                 >
-                  <Mic className="w-3.5 h-3.5" />
+                  <Mic className="w-3.5 h-3.5 text-zinc-500" />
                   <span>Voice</span>
                 </button>
 
                 <button
                   onClick={() => handleSendText(inputText)}
                   disabled={!inputText.trim() || loading}
-                  className="w-8 h-8 rounded-full bg-primary hover:bg-[#00b545] disabled:bg-zinc-700 disabled:text-zinc-500 flex items-center justify-center text-[#001e2b] transition-all active:scale-95 shadow-md"
+                  className="w-8 h-8 rounded-full bg-primary hover:bg-[#00b545] disabled:bg-zinc-200 disabled:text-zinc-400 flex items-center justify-center text-[#001e2b] transition-all active:scale-95 shadow-sm"
                 >
                   <Send className="w-3.5 h-3.5" />
                 </button>
