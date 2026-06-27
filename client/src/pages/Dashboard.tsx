@@ -433,7 +433,7 @@ export function Dashboard() {
       </div>
 
       {/* Mobile Bottom Navigation Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-zinc-200/80 px-2 py-2 flex justify-around items-center z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-[#001e2b]/95 backdrop-blur-md border-t border-[#1c2d38] px-2 py-2 flex justify-around items-center z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.15)]">
         {[
           { id: 'dashboard', label: 'Home', icon: Home },
           { id: 'diagnose', label: 'Diagnose', icon: Camera },
@@ -450,7 +450,7 @@ export function Dashboard() {
                 setShowMobileMore(false);
               }}
               className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all duration-200 ${
-                isActive ? 'text-primary' : 'text-zinc-400'
+                isActive ? 'text-primary' : 'text-[#a8b3bc]/70'
               }`}
             >
               <Icon className="w-5 h-5" />
@@ -463,7 +463,7 @@ export function Dashboard() {
         <button
           onClick={() => setShowMobileMore(!showMobileMore)}
           className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all duration-200 ${
-            showMobileMore || ['library', 'weather', 'settings'].includes(activeTab) ? 'text-primary' : 'text-zinc-400'
+            showMobileMore || ['library', 'weather', 'settings'].includes(activeTab) ? 'text-primary' : 'text-[#a8b3bc]/70'
           }`}
         >
           {showMobileMore ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -480,18 +480,18 @@ export function Dashboard() {
               animate={{ opacity: 0.5 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowMobileMore(false)}
-              className="md:hidden fixed inset-0 bg-zinc-950/40 z-30"
+              className="md:hidden fixed inset-0 bg-zinc-950/60 z-30"
             />
             <motion.div
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-              className="md:hidden fixed bottom-14 left-0 right-0 bg-white rounded-t-3xl border-t border-zinc-200 p-6 z-30 shadow-2xl pb-10"
+              className="md:hidden fixed bottom-14 left-0 right-0 bg-[#001e2b] rounded-t-3xl border-t border-[#1c2d38] p-6 z-30 shadow-2xl pb-10"
             >
-              <div className="flex justify-between items-center mb-5 pb-3 border-b border-zinc-100">
-                <h3 className="text-sm font-bold text-zinc-900">Explore CropGuard GH</h3>
-                <span className="text-[10px] bg-zinc-100 text-zinc-500 font-bold px-2 py-0.5 rounded-full">Menu</span>
+              <div className="flex justify-between items-center mb-5 pb-3 border-b border-[#1c2d38]/50">
+                <h3 className="text-sm font-bold text-white">Explore CropGuard GH</h3>
+                <span className="text-[10px] bg-[#003d4f] text-[#a8b3bc] font-bold px-2 py-0.5 rounded-full">Menu</span>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 {[
@@ -510,13 +510,13 @@ export function Dashboard() {
                       }}
                       className={`flex flex-col items-center justify-center p-3 rounded-2xl border text-center transition-all ${
                         isActive
-                          ? 'bg-primary/5 border-primary text-primary font-bold shadow-sm'
-                          : 'bg-zinc-50 border-zinc-200/60 text-zinc-700 hover:bg-zinc-100'
+                          ? 'bg-primary/10 border-primary text-primary font-bold shadow-sm'
+                          : 'bg-[#003d4f] border-[#00684a]/50 text-white hover:bg-[#00684a]'
                       }`}
                     >
-                      <Icon className="w-6 h-6 mb-2 text-zinc-500" />
+                      <Icon className={`w-6 h-6 mb-2 ${isActive ? 'text-primary' : 'text-[#a8b3bc]'}`} />
                       <span className="text-xs font-bold block">{item.label}</span>
-                      <span className="text-[8px] text-zinc-400 mt-0.5 leading-none">{item.desc}</span>
+                      <span className="text-[8px] opacity-75 mt-0.5 leading-none">{item.desc}</span>
                     </button>
                   );
                 })}

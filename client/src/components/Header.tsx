@@ -7,11 +7,18 @@ export function Header() {
   return (
     <header className="relative z-30 flex justify-between items-center gap-4 mb-4 md:mb-6 bg-white/40 backdrop-blur-md border border-zinc-200/50 rounded-2xl p-3 md:p-4 shadow-sm">
       {/* Greeting and Tagline */}
-      <div className="min-w-0">
-        <h2 className="text-sm md:text-xl font-bold text-zinc-950 font-sans truncate flex items-center gap-1.5">
-          Good morning, Kwame! 🌿
-        </h2>
-        <p className="text-[10px] md:text-xs font-medium text-zinc-500 mt-0.5 truncate">Let's protect your crops today.</p>
+      <div className="min-w-0 flex items-center gap-2.5">
+        <img 
+          src="/images/CG-logo.svg" 
+          alt="CropGuard GH Icon Logo" 
+          className="md:hidden block w-8 h-8 object-contain shrink-0 select-none animate-pulse"
+        />
+        <div className="min-w-0">
+          <h2 className="text-xs md:text-lg font-extrabold text-zinc-950 font-sans truncate flex items-center gap-1">
+            Kwame Mensah 👋
+          </h2>
+          <p className="text-[9px] md:text-xs font-semibold text-zinc-500 mt-0.5 truncate">AI Farm Protector</p>
+        </div>
       </div>
 
       {/* Right Side Buttons */}

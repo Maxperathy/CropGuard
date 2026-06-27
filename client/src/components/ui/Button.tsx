@@ -14,14 +14,14 @@ export function Button({
   disabled,
   ...props
 }: ButtonProps) {
-  const baseStyles = 'inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 select-none';
+  const baseStyles = 'inline-flex items-center justify-center font-bold rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 select-none';
   
   const variants = {
-    primary: 'bg-primary text-white hover:bg-primary-light disabled:bg-zinc-200 disabled:text-zinc-400 active:scale-98 shadow-sm',
+    primary: 'bg-primary text-[#001e2b] hover:bg-[#00b545] disabled:bg-zinc-200 disabled:text-zinc-400 active:scale-98 shadow-sm',
     secondary: 'border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 disabled:bg-zinc-50 disabled:text-zinc-400 active:scale-98 shadow-sm',
-    text: 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-50',
+    text: 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-50 rounded-xl',
     danger: 'bg-danger text-white hover:bg-red-600 active:scale-98 shadow-sm',
-    ghost: 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-50',
+    ghost: 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-50 rounded-xl',
   };
 
   const sizes = {
