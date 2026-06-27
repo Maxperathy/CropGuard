@@ -9,7 +9,7 @@ export class SnwolleyApiError extends Error {
 }
 
 export function getTimeoutMs(): number {
-  return parseInt(process.env.SNWOLLEY_TIMEOUT_MS ?? '8000', 10);
+  return parseInt(process.env.SNWOLLEY_TIMEOUT_MS ?? '60000', 10);
 }
 
 export async function parseSnwolleyError(response: Response): Promise<string> {
