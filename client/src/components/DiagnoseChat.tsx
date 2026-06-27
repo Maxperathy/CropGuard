@@ -15,7 +15,7 @@ import {
   Volume2,
   Brain
 } from 'lucide-react';
-import { diagnosePhoto, chatFollowUp, ChatMessage } from '../services/api';
+import { diagnosePhoto, chatFollowUp, ChatMessage, transcribeAudio } from '../services/api';
 import { Progress } from './ui/Progress';
 
 interface DiagnoseChatProps {
@@ -53,6 +53,19 @@ const SUGGESTIONS = [
   { text: "Prevent black pod rot in cocoa", icon: BookOpen, color: "#00ed64" },
 ];
 
+const LANGUAGES = [
+  { code: 'eng', name: 'African English', flag: '🌍' },
+  { code: 'fra', name: 'African French', flag: '🌍' },
+  { code: 'twi', name: 'Asante Twi', flag: '🇬🇭' },
+  { code: 'dag', name: 'Dagbani', flag: '🇬🇭' },
+  { code: 'ewe', name: 'Ewe', flag: '🇬🇭' },
+  { code: 'maw', name: 'Mampruli', flag: '🇬🇭' },
+  { code: 'wlx', name: 'Wali', flag: '🇬🇭' },
+  { code: 'kus', name: 'Kusaal', flag: '🇬🇭' },
+  { code: 'bwu', name: 'Buli', flag: '🇬🇭' },
+  { code: 'xsm', name: 'Kasem', flag: '🇬🇭' },
+];
+
 export function DiagnoseChat({ userId }: DiagnoseChatProps) {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [inputText, setInputText] = useState('');
@@ -63,12 +76,34 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
   const [analyzingProgress, setAnalyzingProgress] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [twiMode, setTwiMode] = useState(false);
+  const [selectedLang, setSelectedLang] = useState('twi');
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
 
-  // Clean up speech recognition on unmount
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const chatIdRef = useRef<string | null>(null);
+  const messagesRef = useRef<MessageType[]>([]);
+  const selectedLangRef = useRef('twi');
+
+  useEffect(() => {
+    chatIdRef.current = chatId;
+  }, [chatId]);
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
+  useEffect(() => {
+    selectedLangRef.current = selectedLang;
+  }, [selectedLang]);
+
+
+  // Clean up recording on unmount
   useEffect(() => {
     return () => {
-      if ((window as any)._recognitionInstance) {
-        (window as any)._recognitionInstance.stop();
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop();
       }
     };
   }, []);
@@ -86,43 +121,145 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
     }
   };
 
-  const startRecording = () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert('Speech recognition is not supported on this browser. Try Google Chrome.');
-      return;
+  const sendTranscribedText = async (textToSend: string) => {
+    if (!textToSend.trim()) return;
+
+    setInputText('');
+
+    const userKey = `user-txt-${Date.now()}`;
+    const newMessages: MessageType[] = [
+      ...messagesRef.current,
+      {
+        key: userKey,
+        from: 'user' as const,
+        content: textToSend,
+      },
+    ];
+    setMessages(newMessages);
+
+    const assistantKey = `assistant-chat-${Date.now()}`;
+    setMessages((prev) => [
+      ...prev,
+      {
+        key: assistantKey,
+        from: 'assistant',
+        content: '',
+        status: 'loading',
+      },
+    ]);
+
+    setLoading(true);
+
+    try {
+      const historyPayload: ChatMessage[] = newMessages
+        .filter((m) => m.key !== 'welcome' && m.status !== 'loading' && m.status !== 'analyzing')
+        .map((m) => ({
+          role: m.from,
+          content: m.content,
+        }));
+
+      const isTwi = selectedLangRef.current === 'twi';
+      const reply = await chatFollowUp(userId, textToSend, historyPayload, chatIdRef.current, isTwi);
+      setChatId(reply.chatId);
+
+      setMessages((prev) =>
+        prev.map((msg) => {
+          if (msg.key === assistantKey) {
+            const updatedMsg: MessageType = {
+              ...msg,
+              content: reply.reply,
+              audio_base64: reply.audio_base64,
+              audio_format: reply.audio_format,
+              status: 'ready',
+            };
+            if (reply.audio_base64) {
+              playAudio(reply.audio_base64, reply.audio_format);
+            }
+            return updatedMsg;
+          }
+          return msg;
+        })
+      );
+    } catch (err) {
+      setMessages((prev) =>
+        prev.map((msg) => {
+          if (msg.key === assistantKey) {
+            return {
+              ...msg,
+              content: `⚠️ Sorry Kwame, I failed to process your question. Please verify your backend server connection.`,
+              status: 'ready',
+            };
+          }
+          return msg;
+        })
+      );
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = twiMode ? 'ak-GH' : 'en-GH';
+  const startRecording = async () => {
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('Audio recording is not supported on this browser.');
+        return;
+      }
 
-    recognition.onstart = () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioChunksRef.current = [];
+
+      let options = {};
+      if (MediaRecorder.isTypeSupported('audio/webm')) {
+        options = { mimeType: 'audio/webm' };
+      } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
+        options = { mimeType: 'audio/ogg' };
+      } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+        options = { mimeType: 'audio/mp4' };
+      }
+
+      const mediaRecorder = new MediaRecorder(stream, options);
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        stream.getTracks().forEach((track) => track.stop());
+
+        const audioBlob = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType });
+        if (audioBlob.size === 0) return;
+
+        setTranscribing(true);
+        try {
+          console.log(`[STT] Sending audio blob of type: ${audioBlob.type}, size: ${audioBlob.size} bytes`);
+          const text = await transcribeAudio(audioBlob, selectedLangRef.current);
+          if (text && text.trim()) {
+            await sendTranscribedText(text);
+          } else {
+            alert('Could not understand speech. Please try speaking clearly or typing.');
+          }
+        } catch (err) {
+          console.error('[STT] Transcription failed:', err);
+          alert('Transcription service error. Please try again.');
+        } finally {
+          setTranscribing(false);
+        }
+      };
+
+      mediaRecorder.start();
       setIsRecording(true);
-    };
-
-    recognition.onerror = (event: any) => {
-      console.error('[STT] Speech recognition error:', event.error);
-      setIsRecording(false);
-    };
-
-    recognition.onend = () => {
-      setIsRecording(false);
-    };
-
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setInputText((prev) => prev + (prev ? ' ' : '') + transcript);
-    };
-
-    recognition.start();
-    (window as any)._recognitionInstance = recognition;
+    } catch (err) {
+      console.error('[STT] Failed to start voice recording:', err);
+      alert('Microphone access denied or not available.');
+    }
   };
 
   const stopRecording = () => {
-    if ((window as any)._recognitionInstance) {
-      (window as any)._recognitionInstance.stop();
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
     }
     setIsRecording(false);
   };
@@ -694,29 +831,69 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
                   <Globe className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">Search</span>
                 </button>
+                {/* Language Dropdown Selector */}
+                <div className="relative select-none">
+                  <button
+                    type="button"
+                    onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-200 text-[10px] font-bold transition-all ${
+                      selectedLang !== 'eng' ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-zinc-650 hover:text-zinc-855 hover:bg-zinc-50 shadow-sm'
+                    }`}
+                  >
+                    <span className="shrink-0">{LANGUAGES.find(l => l.code === selectedLang)?.flag || '🇬🇭'}</span>
+                    <span>
+                      {LANGUAGES.find(l => l.code === selectedLang)?.name.split(' ')[0] || 'Language'}
+                      <span className="hidden sm:inline"> Dialect</span>
+                    </span>
+                    <ChevronDown className={`w-3 h-3 shrink-0 ${selectedLang !== 'eng' ? 'text-white' : 'text-zinc-400'}`} />
+                  </button>
 
-                <button
-                  onClick={() => setTwiMode(!twiMode)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-200 text-[10px] font-bold transition-all ${
-                    twiMode ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-zinc-650 hover:text-zinc-855 hover:bg-zinc-50 shadow-sm'
-                  }`}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${twiMode ? 'bg-white' : 'bg-zinc-400'}`} />
-                  <span>Twi<span className="hidden sm:inline"> Akan Mode</span></span>
-                </button>
+                  {langDropdownOpen && (
+                    <div className="absolute bottom-10 left-0 bg-white border border-zinc-250 rounded-2xl p-1.5 shadow-2xl flex flex-col gap-1 w-44 max-h-60 overflow-y-auto z-50">
+                      {LANGUAGES.map((lang) => (
+                        <button
+                          key={lang.code}
+                          type="button"
+                          onClick={() => {
+                            setSelectedLang(lang.code);
+                            setTwiMode(lang.code === 'twi');
+                            setLangDropdownOpen(false);
+                          }}
+                          className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-left text-[11px] font-bold transition-all ${
+                            selectedLang === lang.code
+                              ? 'bg-emerald-50 text-emerald-700'
+                              : 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-50'
+                          }`}
+                        >
+                          <span className="text-xs">{lang.flag}</span>
+                          <span className="truncate">{lang.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Voice and Send tools */}
               <div className="flex items-center gap-2">
                 <button
+                  type="button"
                   onClick={handleVoiceToggle}
+                  disabled={transcribing}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-200 text-[10px] font-bold transition-all ${
-                    isRecording ? 'bg-danger text-white animate-pulse shadow-sm' : 'bg-white text-zinc-600 hover:text-zinc-850 hover:bg-zinc-50 shadow-sm'
+                    isRecording 
+                      ? 'bg-danger text-white border-danger animate-pulse shadow-sm' 
+                      : transcribing
+                        ? 'bg-zinc-100 text-zinc-400 border-zinc-200 cursor-not-allowed'
+                        : 'bg-white text-zinc-650 hover:text-zinc-850 hover:bg-zinc-50 shadow-sm'
                   }`}
                 >
-                  <Mic className="w-3.5 h-3.5 text-zinc-500" />
-                  <span className="hidden sm:inline">Voice</span>
+                  <Mic className={`w-3.5 h-3.5 ${isRecording ? 'text-white' : 'text-zinc-500'}`} />
+                  <span>
+                    {isRecording ? 'Stop' : transcribing ? 'Transcribing...' : 'Voice'}
+                  </span>
                 </button>
+
 
                 <button
                   onClick={() => handleSendText(inputText)}

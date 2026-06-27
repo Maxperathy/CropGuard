@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import { runDiagnosisPipeline, SnwolleyApiError } from '../services/diagnosisService';
 import { continueChatWithAgent } from '../services/agentsClient';
-import { translateToTwi, synthesizeSpeechKhaya } from '../services/khayaClient';
+import { translateToTwi, synthesizeSpeechKhaya, transcribeAudioKhaya } from '../services/khayaClient';
 import { synthesizeSpeechAuto } from '../services/ttsClient';
 
 const upload = multer({
@@ -135,3 +135,40 @@ diagnoseRouter.post('/chat', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to process follow-up question' });
   }
 });
+
+diagnoseRouter.post('/transcribe', upload.single('audio'), async (req: Request, res: Response) => {
+  try {
+    const language = req.query.language as string | undefined;
+    if (!language) {
+      res.status(400).json({ error: 'language query parameter is required' });
+      return;
+    }
+    if (!req.file) {
+      res.status(400).json({ error: 'audio file is required' });
+      return;
+    }
+
+    let contentType = req.file.mimetype;
+    // Map mime types to accepted headers in Khaya ASR
+    if (contentType === 'audio/mpeg' || contentType === 'audio/mp3') {
+      contentType = 'audio/mpeg';
+    } else if (contentType === 'audio/wav' || contentType === 'audio/x-wav') {
+      contentType = 'audio/wav';
+    } else if (contentType === 'audio/flac') {
+      contentType = 'audio/flac';
+    } else if (contentType === 'audio/ogg' || contentType === 'audio/webm' || contentType.includes('webm')) {
+      contentType = 'audio/ogg';
+    } else {
+      contentType = 'audio/wav';
+    }
+
+    console.log(`[Khaya ASR] Transcribing audio file (size: ${req.file.size} bytes), mimetype: ${req.file.mimetype} as ${contentType}, language: ${language}`);
+    const text = await transcribeAudioKhaya(req.file.buffer, language, contentType);
+    console.log(`[Khaya ASR] Transcription successful: "${text}"`);
+    res.json({ text });
+  } catch (err) {
+    console.error('[Khaya ASR] Route Error:', err);
+    res.status(500).json({ error: 'Failed to transcribe audio' });
+  }
+});
+

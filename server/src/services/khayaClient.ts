@@ -89,3 +89,44 @@ export async function synthesizeSpeechKhaya(text: string): Promise<string> {
     clearTimeout(timeout);
   }
 }
+
+/**
+ * Transcribes audio using Khaya ASR API
+ */
+export async function transcribeAudioKhaya(
+  audioBuffer: Buffer,
+  language: string,
+  contentType: string = 'audio/wav'
+): Promise<string> {
+  const apiKey = getKhayaApiKey();
+  const url = `https://translation-api.ghananlp.org/asr/v3/transcribe?language=${language}`;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 20000); // 20 second timeout for ASR
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Ocp-Apim-Subscription-Key': apiKey,
+        'Content-Type': contentType,
+      },
+      body: audioBuffer as any,
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`Khaya ASR failed with status ${res.status}: ${errorText}`);
+    }
+
+    const data = (await res.json()) as { text: string };
+    return data.text;
+  } catch (err) {
+    console.error('[Khaya ASR] Error:', err);
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+

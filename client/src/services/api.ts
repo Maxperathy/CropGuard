@@ -137,3 +137,22 @@ export async function deleteDiagnosis(id: string): Promise<{ success: boolean }>
     method: 'DELETE',
   });
 }
+
+export async function transcribeAudio(audioBlob: Blob, language: string): Promise<string> {
+  const formData = new FormData();
+  formData.append('audio', audioBlob, 'recording.webm');
+
+  const res = await fetch(`${API_BASE}/diagnose/transcribe?language=${language}`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({ error: res.statusText }))) as { error?: string };
+    throw new Error(body.error ?? 'Transcription failed');
+  }
+
+  const data = (await res.json()) as { text: string };
+  return data.text;
+}
+
