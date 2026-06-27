@@ -21,7 +21,7 @@ const CROP_DATA: CropInfo[] = [
     id: 'c1',
     name: 'Maize',
     scientific: 'Zea mays',
-    image: 'https://images.unsplash.com/photo-1530026405186-ed1ea0ac7a63?auto=format&fit=crop&q=80&w=400',
+    image: '/images/maize.jpg',
     description: 'A staple cereal grain cultivated widely. It serves as a major source of starch and feed.',
     diseases: [
       {
@@ -42,7 +42,7 @@ const CROP_DATA: CropInfo[] = [
     id: 'c2',
     name: 'Tomato',
     scientific: 'Solanum lycopersicum',
-    image: 'https://images.unsplash.com/photo-1592841208221-a5808df73648?auto=format&fit=crop&q=80&w=400',
+    image: '/images/tomato.jpg',
     description: 'An essential agricultural crop in Ghana, highly susceptible to fungal wilts and blight during wet seasons.',
     diseases: [
       {
@@ -72,7 +72,7 @@ const CROP_DATA: CropInfo[] = [
     id: 'c4',
     name: 'Cassava',
     scientific: 'Manihot esculenta',
-    image: 'https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?auto=format&fit=crop&q=80&w=400',
+    image: '/images/cassava.jpg',
     description: 'A root vegetable highly resilient to drought but vulnerable to mosaic viruses.',
     diseases: [
       {
