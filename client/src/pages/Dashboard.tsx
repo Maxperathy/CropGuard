@@ -26,7 +26,7 @@ import { HistoryList } from '../components/HistoryList';
 import { CropLibrary } from '../components/CropLibrary';
 import { SettingsView } from '../components/SettingsView';
 import { AgroDealerMap } from '../components/AgroDealerMap';
-import { DiagnosisResultPanel } from '../components/DiagnosisResult';
+import { DiagnoseChat } from '../components/DiagnoseChat';
 
 import { 
   Activity, 
@@ -319,7 +319,7 @@ export function Dashboard() {
               )}
 
               {/* AI chat — always visible as quick assistant */}
-              <DiagnosisResultPanel result={diagnosis} />
+              {userId && <DiagnoseChat userId={userId} />}
             </div>
 
             {/* Right: Map + Weather */}
@@ -331,24 +331,7 @@ export function Dashboard() {
         );
 
       case 'diagnose':
-        return (
-          <div className="max-w-4xl mx-auto flex flex-col gap-6">
-            {/* Upload at top */}
-            <UploadZone
-              userId={userId}
-              onDiagnosisComplete={handleDiagnosisComplete}
-              onFileSelected={setUploadedPreviewUrl}
-            />
-
-            {/* Diagnosis result card once uploaded */}
-            {diagnosis && (
-              <DiagnosisCard data={getDisplayDiagnosis()} />
-            )}
-
-            {/* Inline AI chat so user can immediately ask questions */}
-            <DiagnosisResultPanel result={diagnosis} />
-          </div>
-        );
+        return userId ? <DiagnoseChat userId={userId} /> : null;
 
       case 'map':
         return <AgroDealerMap />;
