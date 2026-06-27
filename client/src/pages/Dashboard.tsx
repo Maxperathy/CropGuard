@@ -454,10 +454,10 @@ export function Dashboard() {
           {activeTab === 'dashboard' && (
             <div className="mb-6">
               <div className="mb-6">
-                <h1 className="text-2xl font-black text-zinc-950 font-sans tracking-tight">
+                <h1 className="text-2xl font-black text-white font-sans tracking-tight drop-shadow-sm">
                   Good morning, {profile.name.split(' ')[0]} 👋
                 </h1>
-                <p className="text-xs text-zinc-500 font-medium mt-1">
+                <p className="text-xs text-zinc-100 font-medium mt-1 drop-shadow-sm">
                   Helping farmers protect their crops with AI. Let's inspect your farm today.
                 </p>
               </div>
