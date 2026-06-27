@@ -43,6 +43,8 @@ type MessageType = {
     recommendedAction: string;
   };
   status?: 'ready' | 'loading' | 'analyzing';
+  audio_base64?: string | null;
+  audio_format?: string | null;
 };
 
 const SUGGESTIONS = [
@@ -60,6 +62,78 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [analyzingProgress, setAnalyzingProgress] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
+  const [twiMode, setTwiMode] = useState(false);
+
+  // Clean up speech recognition on unmount
+  useEffect(() => {
+    return () => {
+      if ((window as any)._recognitionInstance) {
+        (window as any)._recognitionInstance.stop();
+      }
+    };
+  }, []);
+
+  const playAudio = (base64: string, format: string | null) => {
+    try {
+      const type = format || 'wav';
+      const audioUrl = `data:audio/${type};base64,${base64}`;
+      const audio = new Audio(audioUrl);
+      audio.play().catch(err => {
+        console.warn('[Audio Playback] Autoplay was prevented or audio failed to load:', err);
+      });
+    } catch (err) {
+      console.error('[Audio Playback] Error playing audio:', err);
+    }
+  };
+
+  const startRecording = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Speech recognition is not supported on this browser. Try Google Chrome.');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = twiMode ? 'ak-GH' : 'en-GH';
+
+    recognition.onstart = () => {
+      setIsRecording(true);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('[STT] Speech recognition error:', event.error);
+      setIsRecording(false);
+    };
+
+    recognition.onend = () => {
+      setIsRecording(false);
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInputText((prev) => prev + (prev ? ' ' : '') + transcript);
+    };
+
+    recognition.start();
+    (window as any)._recognitionInstance = recognition;
+  };
+
+  const stopRecording = () => {
+    if ((window as any)._recognitionInstance) {
+      (window as any)._recognitionInstance.stop();
+    }
+    setIsRecording(false);
+  };
+
+  const handleVoiceToggle = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -289,17 +363,23 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
           content: m.content
         }));
 
-      const reply = await chatFollowUp(userId, textToSend, historyPayload, chatId);
+      const reply = await chatFollowUp(userId, textToSend, historyPayload, chatId, twiMode);
       setChatId(reply.chatId);
 
       setMessages((prev) =>
         prev.map((msg) => {
           if (msg.key === assistantKey) {
-            return {
+            const updatedMsg: MessageType = {
               ...msg,
               content: reply.reply,
+              audio_base64: reply.audio_base64,
+              audio_format: reply.audio_format,
               status: 'ready'
             };
+            if (reply.audio_base64) {
+              playAudio(reply.audio_base64, reply.audio_format);
+            }
+            return updatedMsg;
           }
           return msg;
         })
@@ -339,13 +419,18 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
     );
   };
 
-  const handleSpeechOutput = (text: string) => {
+  const handleSpeechOutput = (msg: MessageType) => {
+    if (msg.audio_base64) {
+      playAudio(msg.audio_base64, msg.audio_format || 'wav');
+      return;
+    }
+
     if (!('speechSynthesis' in window)) {
       alert('Speech synthesis is not supported on this browser.');
       return;
     }
     window.speechSynthesis.cancel();
-    const cleanText = text
+    const cleanText = msg.content
       .replace(/^(?:CROP|DISEASE|CONFIDENCE|RECOMMENDED ACTION):\s*[^\n\r]*/gim, '')
       .replace(/[#\*_\-\[\]]/g, '')
       .trim();
@@ -508,7 +593,7 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
                 {/* Speech audio output button */}
                 {!isUser && msg.status === 'ready' && (
                   <button 
-                    onClick={() => handleSpeechOutput(msg.content)}
+                    onClick={() => handleSpeechOutput(msg)}
                     className="mt-3 flex items-center gap-1 text-[9px] font-bold text-primary hover:text-white transition-colors"
                   >
                     <Volume2 className="w-3.5 h-3.5" />
@@ -588,7 +673,7 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
             {/* Input Controls Footer */}
             <div className="flex justify-between items-center pt-2 border-t border-zinc-200/80 mt-1">
               
-              {/* Attach and Search triggers */}
+              {/* Attach, Search, and Language triggers */}
               <div className="flex items-center gap-2 select-none">
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -609,12 +694,22 @@ export function DiagnoseChat({ userId }: DiagnoseChatProps) {
                   <Globe className="w-3.5 h-3.5" />
                   <span>Search</span>
                 </button>
+
+                <button
+                  onClick={() => setTwiMode(!twiMode)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-200 text-[10px] font-bold transition-all ${
+                    twiMode ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-zinc-650 hover:text-zinc-855 hover:bg-zinc-50 shadow-sm'
+                  }`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${twiMode ? 'bg-white' : 'bg-zinc-400'}`} />
+                  <span>Twi Akan Mode</span>
+                </button>
               </div>
 
               {/* Voice and Send tools */}
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setIsRecording(!isRecording)}
+                  onClick={handleVoiceToggle}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-200 text-[10px] font-bold transition-all ${
                     isRecording ? 'bg-danger text-white animate-pulse shadow-sm' : 'bg-white text-zinc-600 hover:text-zinc-850 hover:bg-zinc-50 shadow-sm'
                   }`}

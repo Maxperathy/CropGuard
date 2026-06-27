@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import { runDiagnosisPipeline, SnwolleyApiError } from '../services/diagnosisService';
 import { continueChatWithAgent } from '../services/agentsClient';
+import { translateToTwi, synthesizeSpeechKhaya } from '../services/khayaClient';
+import { synthesizeSpeechAuto } from '../services/ttsClient';
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -69,11 +71,12 @@ diagnoseRouter.post('/', upload.single('image'), async (req: Request, res: Respo
 
 diagnoseRouter.post('/chat', async (req: Request, res: Response) => {
   try {
-    const { userId, chatId, message, chatHistory } = req.body as {
+    const { userId, chatId, message, chatHistory, twiMode } = req.body as {
       userId?: string;
       chatId?: string | null;
       message?: string;
       chatHistory?: { role: 'user' | 'assistant'; content: string }[];
+      twiMode?: boolean;
     };
 
     if (!userId || !message || !chatHistory) {
@@ -83,11 +86,42 @@ diagnoseRouter.post('/chat', async (req: Request, res: Response) => {
 
     const chatResult = await continueChatWithAgent(message, chatHistory, chatId);
 
-    const audioBase64: string | null = null;
-    const audioFormat: 'mp3' | 'wav' | null = null;
+    let finalReply = chatResult.reply;
+    let audioBase64: string | null = null;
+    let audioFormat: 'mp3' | 'wav' | null = null;
+
+    if (twiMode) {
+      try {
+        console.log('[TwiMode] Translating AI reply to Twi Asante...');
+        const twiReply = await translateToTwi(chatResult.reply);
+        finalReply = twiReply;
+        
+        console.log('[TwiMode] Synthesizing Twi Akan speech...');
+        audioBase64 = await synthesizeSpeechKhaya(twiReply);
+        audioFormat = 'wav';
+      } catch (err) {
+        console.error('[TwiMode] Failed translation/synthesis, falling back to auto-synthesis:', err);
+        try {
+          const synthesis = await synthesizeSpeechAuto(chatResult.reply);
+          audioBase64 = synthesis.audioBase64;
+          audioFormat = synthesis.format;
+        } catch (e) {
+          console.error('[TwiMode Fallback] All synthesis failed:', e);
+        }
+      }
+    } else {
+      try {
+        console.log('[EnglishMode] Synthesizing English speech...');
+        const synthesis = await synthesizeSpeechAuto(chatResult.reply);
+        audioBase64 = synthesis.audioBase64;
+        audioFormat = synthesis.format;
+      } catch (err) {
+        console.error('[EnglishMode] Speech synthesis failed:', err);
+      }
+    }
 
     res.json({
-      reply: chatResult.reply,
+      reply: finalReply,
       chatId: chatResult.chatId,
       audio_base64: audioBase64,
       audio_format: audioFormat,

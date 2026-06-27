@@ -103,12 +103,13 @@ export async function chatFollowUp(
   userId: string,
   message: string,
   chatHistory: ChatMessage[],
-  chatId: string | null
+  chatId: string | null,
+  twiMode?: boolean
 ): Promise<ChatFollowUpResponse> {
   return request<ChatFollowUpResponse>('/diagnose/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId, message, chatHistory, chatId }),
+    body: JSON.stringify({ userId, message, chatHistory, chatId, twiMode }),
   });
 }
 
