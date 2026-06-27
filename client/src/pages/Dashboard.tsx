@@ -59,6 +59,16 @@ const INITIAL_SAMPLE_DIAGNOSIS: DiagnosisData = {
   imageUrl: 'https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&q=80&w=600',
 };
 
+const TAB_BACKGROUNDS: Record<string, string> = {
+  dashboard: '/images/SoilWithSeedling.jpg',
+  diagnose: '/images/darkSeed.jpg',
+  map: '/images/WateringSeed.jpg',
+  history: '/images/HoldSmallSeed.jpg',
+  library: '/images/SmallSeedling.jpg',
+  weather: '/images/Bg.jpg',
+  settings: '/images/HandHoldSeed.jpg',
+};
+
 export function Dashboard() {
   const [userId, setUserId] = useState<string | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
@@ -415,9 +425,9 @@ export function Dashboard() {
       <div
         className="flex-1 flex flex-col min-w-0 relative transition-all duration-500"
         style={
-          activeTab === 'weather'
+          TAB_BACKGROUNDS[activeTab]
             ? {
-                backgroundImage: "url('/images/Bg.jpg')",
+                backgroundImage: `url('${TAB_BACKGROUNDS[activeTab]}')`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center top',
                 backgroundRepeat: 'no-repeat',
@@ -425,8 +435,8 @@ export function Dashboard() {
             : {}
         }
       >
-        {/* Overlay — only visible on weather */}
-        {activeTab === 'weather' && (
+        {/* Overlay — visible for tabs that have backgrounds */}
+        {TAB_BACKGROUNDS[activeTab] && (
           <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] pointer-events-none z-0" />
         )}
 
