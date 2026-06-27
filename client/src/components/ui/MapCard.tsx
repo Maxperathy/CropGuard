@@ -1,6 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { Card } from './Card';
 import { MapPin, Phone, Compass, Star } from 'lucide-react';
+import L from 'leaflet';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+// Fix default Leaflet icon paths
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+});
 
 interface MapLocation {
   id: string;
@@ -69,23 +81,18 @@ export function MapCard({ locations = SAMPLE_LOCATIONS, height = 'h-40', showHea
   // Leaflet map initialization
   useEffect(() => {
     if (!mapRef.current) return;
-    const L_Instance = (window as any).L;
-    if (!L_Instance) {
-      console.warn('Leaflet global object not found.');
-      return;
-    }
 
     // Centered around Kumasi coordinates
     if (!mapInstance.current) {
-      const map = L_Instance.map(mapRef.current, {
+      const map = L.map(mapRef.current, {
         zoomControl: false,
         attributionControl: false
       }).setView([6.6906, -1.6244], 13);
 
-      L_Instance.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
       // Add a circle range highlight to match visual mockup
-      L_Instance.circle([6.6906, -1.6244], {
+      L.circle([6.6906, -1.6244], {
         color: '#2E7D32',
         fillColor: '#66BB6A',
         fillOpacity: 0.1,
@@ -101,7 +108,7 @@ export function MapCard({ locations = SAMPLE_LOCATIONS, height = 'h-40', showHea
 
     // Render active locations on Leaflet map
     activeLocs.forEach((loc) => {
-      const marker = L_Instance.marker(loc.coords)
+      const marker = L.marker(loc.coords)
         .addTo(mapInstance.current)
         .bindPopup(`
           <div style="font-family:sans-serif;font-size:11px;">
@@ -111,6 +118,17 @@ export function MapCard({ locations = SAMPLE_LOCATIONS, height = 'h-40', showHea
         `);
       markersRef.current[loc.id] = marker;
     });
+
+    // Invalidate size after a short delay to solve rendering issues in dynamic layouts
+    const timer = setTimeout(() => {
+      if (mapInstance.current) {
+        mapInstance.current.invalidateSize();
+      }
+    }, 250);
+
+    return () => {
+      clearTimeout(timer);
+    };
 
   }, [activeLocs]);
 

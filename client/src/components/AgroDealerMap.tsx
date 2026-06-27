@@ -2,6 +2,18 @@ import { useEffect, useRef, useState } from 'react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Loader2, Star, Phone, Navigation } from 'lucide-react';
+import L from 'leaflet';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+// Fix default Leaflet icon paths
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+});
 
 interface Dealer {
   id: string;
@@ -155,22 +167,27 @@ export function AgroDealerMap() {
   useEffect(() => {
     if (!mapRef.current || mapInstance.current) return;
 
-    const L_Instance = (window as any).L;
-    if (!L_Instance) return;
-
     // Centered Ghana [7.5, -1.2]
-    const map = L_Instance.map(mapRef.current, {
+    const map = L.map(mapRef.current, {
       zoomControl: true,
       attributionControl: false,
     }).setView([7.5, -1.2], 7);
     mapInstance.current = map;
 
-    L_Instance.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
     // Try to auto detect location at map open
     detectUserLocation(false);
 
+    // Invalidate size after a short delay to solve rendering issues in dynamic layouts/transitions
+    const timer = setTimeout(() => {
+      if (mapInstance.current) {
+        mapInstance.current.invalidateSize();
+      }
+    }, 250);
+
     return () => {
+      clearTimeout(timer);
       if (mapInstance.current) {
         mapInstance.current.remove();
         mapInstance.current = null;
@@ -180,8 +197,7 @@ export function AgroDealerMap() {
 
   // Update dealer markers on map
   useEffect(() => {
-    const L_Instance = (window as any).L;
-    if (!L_Instance || !mapInstance.current) return;
+    if (!mapInstance.current) return;
 
     Object.values(markersRef.current).forEach((marker) => marker.remove());
     markersRef.current = {};
@@ -206,7 +222,7 @@ export function AgroDealerMap() {
         </div>
       `;
 
-      const marker = L_Instance.marker(d.coords)
+      const marker = L.marker(d.coords)
         .addTo(mapInstance.current)
         .bindPopup(popupContent);
 
@@ -240,24 +256,21 @@ export function AgroDealerMap() {
           }
 
           // Place User Marker Dot
-          const L_Instance = (window as any).L;
-          if (L_Instance) {
-            if (userMarkerRef.current) userMarkerRef.current.remove();
+          if (userMarkerRef.current) userMarkerRef.current.remove();
 
-            const userIcon = L_Instance.divIcon({
-              className: 'custom-user-marker',
-              html: `<div style="background:#2563eb;width:12px;height:12px;border-radius:50%;border:2px white solid;box-shadow:0 0 10px rgba(37,99,235,0.7);"></div>`,
-              iconSize: [12, 12],
-              iconAnchor: [6, 6],
-            });
+          const userIcon = L.divIcon({
+            className: 'custom-user-marker',
+            html: `<div style="background:#2563eb;width:12px;height:12px;border-radius:50%;border:2px white solid;box-shadow:0 0 10px rgba(37,99,235,0.7);"></div>`,
+            iconSize: [12, 12],
+            iconAnchor: [6, 6],
+          });
 
-            userMarkerRef.current = L_Instance.marker([lat, lon], { icon: userIcon })
-              .addTo(mapInstance.current)
-              .bindPopup('<strong>You Are Here</strong>');
-            
-            if (pan) {
-              userMarkerRef.current.openPopup();
-            }
+          userMarkerRef.current = L.marker([lat, lon], { icon: userIcon })
+            .addTo(mapInstance.current)
+            .bindPopup('<strong>You Are Here</strong>');
+          
+          if (pan) {
+            userMarkerRef.current.openPopup();
           }
         }
       },
