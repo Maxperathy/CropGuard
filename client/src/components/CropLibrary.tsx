@@ -57,7 +57,7 @@ const CROP_DATA: CropInfo[] = [
     id: 'c3',
     name: 'Cocoa',
     scientific: 'Theobroma cacao',
-    image: 'https://images.unsplash.com/photo-1610970881699-44a5587caaec?auto=format&fit=crop&q=80&w=400',
+    image: '/images/cocoa.png',
     description: 'Ghana’s primary export crop. Requires intensive care to prevent black pod disease and capsid damage.',
     diseases: [
       {
